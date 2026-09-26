@@ -22,6 +22,19 @@ def crear_entidad(entidad: schemas.EntidadCreate, db: Session = Depends(get_db))
 def obtener_entidades(db: Session = Depends(get_db)):
     return db.query(models.EntidadCrediticia).all()
 
+# --- Categorías ---
+@router.post("/categorias/", response_model=schemas.CategoriaResponse)
+def crear_categoria(categoria: schemas.CategoriaCreate, db: Session = Depends(get_db)):
+    db_cat = models.Categoria(**categoria.model_dump())
+    db.add(db_cat)
+    db.commit()
+    db.refresh(db_cat)
+    return db_cat
+
+@router.get("/categorias/", response_model=List[schemas.CategoriaResponse])
+def obtener_categorias(db: Session = Depends(get_db)):
+    return db.query(models.Categoria).all()
+
 # --- Transacciones Corrientes ---
 
 @router.post("/transacciones/", response_model=schemas.TransaccionResponse)
