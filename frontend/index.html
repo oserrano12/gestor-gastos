@@ -8,6 +8,9 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Librerías Premium -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-50 font-sans leading-normal tracking-normal text-slate-800 h-screen flex flex-col">
     
@@ -116,9 +119,17 @@
                         <h3 class="text-slate-500 text-sm font-bold uppercase">Gastos + Deudas + Susc</h3>
                         <p id="dashGastos" class="text-2xl font-bold text-red-600">$0</p>
                     </div>
-                    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                    <div class="bg-white rounded-xl shadow-md p-6">
                         <h3 class="text-slate-500 text-sm font-bold uppercase">Balance Disponible</h3>
                         <p id="dashBalance" class="text-2xl font-bold text-blue-600">$0</p>
+                    </div>
+                </div>
+
+                <!-- Gráficos Premium -->
+                <div class="bg-white rounded-xl shadow-md p-6 mt-6">
+                    <h3 class="text-lg font-bold text-slate-700 mb-4 border-b pb-2"><i class="fa-solid fa-chart-pie mr-2 text-blue-500"></i>Distribución de Gastos vs Ingresos</h3>
+                    <div class="w-full h-64 flex justify-center">
+                        <canvas id="graficoFinanzas"></canvas>
                     </div>
                 </div>
 
@@ -170,7 +181,12 @@
                         </form>
                     </div>
                     <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
-                        <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2"><i class="fa-solid fa-list text-blue-500 mr-2"></i> Historial Completo</h2>
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h2 class="text-lg font-bold text-slate-700"><i class="fa-solid fa-list text-blue-500 mr-2"></i> Historial Completo</h2>
+                            <button onclick="exportarExcel('tablaTransacciones', 'Movimientos')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-bold shadow flex items-center gap-2">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-slate-200 text-sm">
                                 <thead class="bg-slate-50">
@@ -222,7 +238,12 @@
                         </form>
                     </div>
                     <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
-                        <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2"><i class="fa-solid fa-calendar-days mr-2 text-blue-500"></i> Tabla de Amortización</h2>
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h2 class="text-lg font-bold text-slate-700"><i class="fa-solid fa-calendar-days text-blue-500 mr-2"></i> Tabla de Amortización</h2>
+                            <button onclick="exportarExcel('tablaCuotas', 'Amortizacion')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-bold shadow flex items-center gap-2">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-slate-200 text-sm">
                                 <thead class="bg-slate-50">

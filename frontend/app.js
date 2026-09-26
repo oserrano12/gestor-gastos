@@ -193,6 +193,54 @@ async function actualizarTodo() {
     document.getElementById('dashIngresos').innerText = money.format(totalIngresosMonto);
     document.getElementById('dashGastos').innerText = money.format(totalGastosMonto);
     document.getElementById('dashBalance').innerText = money.format(balance);
+
+    actualizarGrafico(totalIngresosMonto, totalGastosMonto);
+}
+
+// --- Gráfico Chart.js ---
+let miGrafico = null;
+function actualizarGrafico(ingresos, gastos) {
+    const ctx = document.getElementById('graficoFinanzas').getContext('2d');
+    
+    if (miGrafico) {
+        miGrafico.destroy();
+    }
+
+    if (ingresos === 0 && gastos === 0) return; // No dibujar si no hay datos
+
+    miGrafico = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Ingresos Totales', 'Gastos y Deudas'],
+            datasets: [{
+                data: [ingresos, gastos],
+                backgroundColor: ['#22c55e', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+// --- Exportar a Excel ---
+function exportarExcel(idTabla, nombreArchivo) {
+    const tabla = document.getElementById(idTabla);
+    if (!tabla || tabla.innerText.includes('No hay') || tabla.innerText.includes('Aún no')) {
+        alert("No hay datos para exportar");
+        return;
+    }
+    
+    // Subimos un nivel para agarrar el <table> completo y no solo el <tbody>
+    const tablaElement = tabla.parentElement;
+    
+    const wb = XLSX.utils.table_to_book(tablaElement, {sheet: "Reporte"});
+    XLSX.writeFile(wb, `${nombreArchivo}_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
 async function cargarTransacciones() {
