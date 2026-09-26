@@ -477,15 +477,15 @@ async function guardarTransaccion(e) {
 
     const bodyTrans = {
         monto: getMonto('monto_transaccion'),
-        fecha: document.getElementById('transFecha').value,
+        fecha: document.getElementById('fecha_transaccion').value,
         categoria_id: categoriaId,
         cuenta_id: document.getElementById('transCuenta') ? parseInt(document.getElementById('transCuenta').value) : null,
-        descripcion: document.getElementById('transDescripcion').value
+        descripcion: document.getElementById('desc_transaccion').value
     };
     
     await fetchAuth(`${API_URL}/transacciones/`, { method: 'POST', body: JSON.stringify(bodyTrans) });
     e.target.reset();
-    document.getElementById('transFecha').valueAsDate = new Date();
+    document.getElementById('fecha_transaccion').valueAsDate = new Date();
     if (btn) { btn.disabled = false; btn.innerHTML = 'Guardar'; }
     actualizarTodo();
 }
