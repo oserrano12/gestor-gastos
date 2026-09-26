@@ -2,6 +2,7 @@ const API_URL = 'https://gestor-gastos-ro0g.onrender.com/api';
 const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
 let dataCategorias = [];
+let dataCuentas = [];
 let totalIngresosMonto = 0;
 let totalGastosMonto = 0;
 
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listeners de App
     document.getElementById('formTransaccion').addEventListener('submit', guardarTransaccion);
     document.getElementById('formCredito').addEventListener('submit', guardarCredito);
+    document.getElementById('formCuenta').addEventListener('submit', crearCuenta);
     document.getElementById('formSuscripcion').addEventListener('submit', guardarSuscripcion);
 
     verificarSesion();
@@ -471,3 +473,51 @@ async function guardarSuscripcion(e) {
 
 // Registro PWA
 if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }
+
+
+// ================= CUENTAS =================
+async function crearCuenta(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const original = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = 'Creando...';
+    
+    const body = {
+        nombre: document.getElementById('cuentaNombre').value,
+        color: document.getElementById('cuentaColor').value
+    };
+    
+    try {
+        const res = await fetchAuth(`${API_URL}/cuentas/`, {
+            method: 'POST',
+            body: JSON.stringify(body)
+        });
+        if(res.ok) {
+            e.target.reset();
+            actualizarTodo();
+        } else {
+            alert('Error al crear cuenta');
+        }
+    } catch(err) { console.error(err); }
+    finally { btn.disabled = false; btn.innerHTML = original; }
+}
+
+function renderizarCuentas() {
+    const contenedor = document.getElementById('listaCuentas');
+    if (dataCuentas.length === 0) {
+        contenedor.innerHTML = '<p class="text-slate-500 text-sm">No tienes cuentas. Crea la primera arriba.</p>';
+        return;
+    }
+    
+    contenedor.innerHTML = dataCuentas.map(c => `
+        <div class="border rounded-xl p-4 flex items-center shadow-sm" style="border-left: 4px solid ${c.color}">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white mr-4" style="background-color: ${c.color}">
+                <i class="fa-solid fa-wallet text-xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-500">${c.nombre}</p>
+                <p class="text-xl font-bold text-slate-800">${money.format(c.saldo || 0)}</p>
+            </div>
+        </div>
+    `).join('');
+}

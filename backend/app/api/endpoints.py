@@ -100,6 +100,17 @@ def obtener_categorias(db: Session = Depends(get_db), current_user: models.Usuar
 def crear_transaccion(transaccion: schemas.TransaccionCreate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
     db_transaccion = models.TransaccionCorriente(**transaccion.model_dump(), usuario_id=current_user.id)
     db.add(db_transaccion)
+    
+    # Actualizar saldo de la cuenta
+    if transaccion.cuenta_id:
+        cuenta = db.query(models.Cuenta).filter(models.Cuenta.id == transaccion.cuenta_id).first()
+        if cuenta:
+            categoria = db.query(models.Categoria).filter(models.Categoria.id == transaccion.categoria_id).first()
+            if categoria.tipo == "Ingreso":
+                cuenta.saldo += float(transaccion.monto)
+            else:
+                cuenta.saldo -= float(transaccion.monto)
+                
     db.commit()
     db.refresh(db_transaccion)
     return db_transaccion
