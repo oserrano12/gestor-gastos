@@ -92,7 +92,8 @@ function togglePassword(inputId, iconId) {
 
 async function loginUsuario(e) {
     e.preventDefault();
-    const btn = e.target.querySelector('button');
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando...';
 
     const formData = new URLSearchParams();
@@ -114,11 +115,15 @@ async function loginUsuario(e) {
             alert('Correo o contraseña incorrectos');
         }
     } catch (err) { alert('Error conectando al servidor'); }
-    finally { btn.disabled = false; btn.innerHTML = '<span>Iniciar Sesión</span> <i class="fa-solid fa-arrow-right"></i>'; }
+    finally { btn.disabled = false; btn.innerHTML = originalText; }
 }
 
 async function registrarUsuario(e) {
     e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando...';
+
     const body = {
         nombre: document.getElementById('regNombre').value,
         email: document.getElementById('regEmail').value,
@@ -140,6 +145,7 @@ async function registrarUsuario(e) {
             alert(`Error: ${error.detail}`);
         }
     } catch (err) { alert('Error conectando al servidor'); }
+    finally { btn.disabled = false; btn.innerHTML = originalText; }
 }
 
 function cerrarSesion() {
