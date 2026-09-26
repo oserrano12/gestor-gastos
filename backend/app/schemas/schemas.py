@@ -35,6 +35,25 @@ class TransaccionResponse(TransaccionBase):
     class Config:
         from_attributes = True
 
+# --- Suscripciones ---
+class SuscripcionBase(BaseModel):
+    nombre: str
+    monto: Decimal = Field(..., max_digits=12, decimal_places=2)
+    categoria_id: int
+    dia_cobro: int
+    activa: int = 1
+
+class SuscripcionCreate(SuscripcionBase):
+    pass
+
+class SuscripcionResponse(SuscripcionBase):
+    id: int
+    creado_en: datetime
+    categoria: CategoriaResponse
+    
+    class Config:
+        from_attributes = True
+
 # --- Amortización ---
 class CuotaAmortizacionResponse(BaseModel):
     id: int

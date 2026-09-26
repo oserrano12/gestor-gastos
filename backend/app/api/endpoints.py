@@ -49,6 +49,20 @@ def crear_transaccion(transaccion: schemas.TransaccionCreate, db: Session = Depe
 def obtener_transacciones(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.TransaccionCorriente).offset(skip).limit(limit).all()
 
+# --- Suscripciones ---
+
+@router.post("/suscripciones/", response_model=schemas.SuscripcionResponse)
+def crear_suscripcion(suscripcion: schemas.SuscripcionCreate, db: Session = Depends(get_db)):
+    db_susc = models.Suscripcion(**suscripcion.model_dump())
+    db.add(db_susc)
+    db.commit()
+    db.refresh(db_susc)
+    return db_susc
+
+@router.get("/suscripciones/", response_model=List[schemas.SuscripcionResponse])
+def obtener_suscripciones(db: Session = Depends(get_db)):
+    return db.query(models.Suscripcion).filter(models.Suscripcion.activa == 1).all()
+
 # --- Créditos y Amortización ---
 
 @router.post("/creditos/", response_model=schemas.CreditoResponse)

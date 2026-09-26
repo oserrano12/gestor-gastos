@@ -22,9 +22,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 function switchTab(tab) {
     document.getElementById('vistaBalance').classList.toggle('hidden', tab !== 'balance');
     document.getElementById('vistaCreditos').classList.toggle('hidden', tab !== 'creditos');
+    document.getElementById('vistaSuscripciones').classList.toggle('hidden', tab !== 'suscripciones');
     
     document.getElementById('btnTabBalance').className = tab === 'balance' ? 'bg-blue-900 px-4 py-2 rounded shadow font-semibold hover:bg-blue-700 transition' : 'bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition';
     document.getElementById('btnTabCreditos').className = tab === 'creditos' ? 'bg-blue-900 px-4 py-2 rounded shadow font-semibold hover:bg-blue-700 transition' : 'bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition';
+    document.getElementById('btnTabSuscripciones').className = tab === 'suscripciones' ? 'bg-blue-900 px-4 py-2 rounded shadow font-semibold hover:bg-blue-700 transition' : 'bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition';
 }
 
 // --- Setup Base ---
@@ -59,9 +61,13 @@ async function cargarCategorias() {
         const res = await fetch(`${API_URL}/categorias/`);
         dataCategorias = await res.json();
         const select = document.getElementById('categoria_id');
-        select.innerHTML = '';
+        const selectSusc = document.getElementById('categoria_suscripcion_id');
+        if(select) select.innerHTML = '';
+        if(selectSusc) selectSusc.innerHTML = '';
+        
         dataCategorias.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.nombre} (${c.tipo})</option>`;
+            if(select) select.innerHTML += `<option value="${c.id}">${c.nombre} (${c.tipo})</option>`;
+            if(selectSusc && c.tipo === 'Gasto') selectSusc.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
         });
     } catch (e) { console.error(e); }
 }
@@ -70,6 +76,7 @@ async function cargarCategorias() {
 async function actualizarDashboard() {
     await cargarTransacciones();
     await cargarCuotas();
+    await cargarSuscripciones();
     
     // Calcular Balance Total
     const balance = totalIngresosMonto - totalGastosMonto;
@@ -149,7 +156,40 @@ async function cargarCuotas() {
     } catch (e) {}
 }
 
-// --- Guardar Datos ---
+// ... (cargarTransacciones and cargarCuotas remains)
+async function cargarSuscripciones() {
+    const tbody = document.getElementById('tablaSuscripciones');
+    try {
+        const res = await fetch(`${API_URL}/suscripciones/`);
+        const suscripciones = await res.json();
+        
+        if(tbody) tbody.innerHTML = '';
+
+        if (suscripciones.length === 0) {
+            if(tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">No hay suscripciones activas.</td></tr>`;
+            return;
+        }
+
+        let totalSuscripcionesMes = 0;
+        suscripciones.forEach(s => {
+            totalSuscripcionesMes += parseFloat(s.monto);
+            if(tbody) {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-4 py-3 font-medium text-slate-700">${s.nombre}</td>
+                        <td class="px-4 py-3 text-center text-slate-600">Día ${s.dia_cobro}</td>
+                        <td class="px-4 py-3 text-right font-bold text-red-600">-${money.format(s.monto)}</td>
+                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">Activa</span></td>
+                    </tr>
+                `;
+            }
+        });
+        
+        // Sumamos al gasto mensual proyectado
+        totalGastosMonto += totalSuscripcionesMes;
+    } catch (e) {}
+}
+
 async function guardarTransaccion(e) {
     e.preventDefault();
     const body = {
@@ -181,3 +221,22 @@ async function guardarCredito(e) {
     document.getElementById('fecha_compra').valueAsDate = new Date();
     actualizarDashboard();
 }
+
+async function guardarSuscripcion(e) {
+    e.preventDefault();
+    const body = {
+        nombre: document.getElementById('nombre_suscripcion').value,
+        monto: parseFloat(document.getElementById('monto_suscripcion').value),
+        categoria_id: parseInt(document.getElementById('categoria_suscripcion_id').value),
+        dia_cobro: parseInt(document.getElementById('dia_cobro').value)
+    };
+    await fetch(`${API_URL}/suscripciones/`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+    e.target.reset();
+    actualizarDashboard();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const formSuscripcion = document.getElementById('formSuscripcion');
+    if(formSuscripcion) formSuscripcion.addEventListener('submit', guardarSuscripcion);
+});
+

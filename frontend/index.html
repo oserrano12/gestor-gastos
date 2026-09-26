@@ -20,6 +20,7 @@
             <div class="flex gap-4">
                 <button onclick="switchTab('balance')" id="btnTabBalance" class="bg-blue-900 px-4 py-2 rounded shadow font-semibold hover:bg-blue-700 transition">Diario / Balance</button>
                 <button onclick="switchTab('creditos')" id="btnTabCreditos" class="bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition">Créditos</button>
+                <button onclick="switchTab('suscripciones')" id="btnTabSuscripciones" class="bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition">Suscripciones</button>
             </div>
         </div>
     </nav>
@@ -164,6 +165,61 @@
                             </thead>
                             <tbody id="tablaCuotas" class="bg-white divide-y divide-slate-100">
                                 <!-- Inyectado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA: SUSCRIPCIONES -->
+        <div id="vistaSuscripciones" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Formulario -->
+                <div class="lg:col-span-1 bg-white rounded-xl shadow-md p-6 h-fit">
+                    <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2">
+                        <i class="fa-solid fa-repeat text-blue-500 mr-2"></i> Nueva Suscripción
+                    </h2>
+                    <form id="formSuscripcion" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">Nombre (Ej: Netflix)</label>
+                            <input type="text" id="nombre_suscripcion" required class="mt-1 block w-full rounded border-slate-300 shadow-sm p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">Monto Mensual ($)</label>
+                            <input type="number" id="monto_suscripcion" step="0.01" required class="mt-1 block w-full rounded border-slate-300 shadow-sm p-2 border">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">Categoría</label>
+                            <select id="categoria_suscripcion_id" class="mt-1 block w-full rounded border-slate-300 shadow-sm p-2 border bg-white"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase">Día de Cobro (1-31)</label>
+                            <input type="number" id="dia_cobro" min="1" max="31" required class="mt-1 block w-full rounded border-slate-300 shadow-sm p-2 border">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition-colors">
+                            Activar Suscripción
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2">
+                        <i class="fa-solid fa-bolt text-blue-500 mr-2"></i> Suscripciones Activas
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-200 text-sm">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold text-slate-500">Servicio</th>
+                                    <th class="px-4 py-3 text-center font-semibold text-slate-500">Día de Cobro</th>
+                                    <th class="px-4 py-3 text-right font-semibold text-slate-500">Monto</th>
+                                    <th class="px-4 py-3 text-center font-semibold text-slate-500">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaSuscripciones" class="bg-white divide-y divide-slate-100">
+                                <!-- JS -->
                             </tbody>
                         </table>
                     </div>

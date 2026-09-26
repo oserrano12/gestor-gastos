@@ -46,6 +46,18 @@ class TransaccionCorriente(Base):
 
     categoria = relationship("Categoria", back_populates="transacciones")
 
+class Suscripcion(Base):
+    __tablename__ = "suscripciones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, nullable=False)
+    monto = Column(Numeric(12, 2), nullable=False)
+    categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
+    dia_cobro = Column(Integer, nullable=False) # 1-31
+    activa = Column(Integer, default=1) # 1 = Activa, 0 = Inactiva
+    creado_en = Column(DateTime(timezone=True), server_default=func.now())
+
+    categoria = relationship("Categoria")
 
 class EntidadCrediticia(Base):
     __tablename__ = "entidades_crediticias"
