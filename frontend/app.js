@@ -5,18 +5,116 @@ let dataCategorias = [];
 let totalIngresosMonto = 0;
 let totalGastosMonto = 0;
 
-document.addEventListener('DOMContentLoaded', async () => {
-    document.getElementById('fecha_transaccion').valueAsDate = new Date();
-    document.getElementById('fecha_compra').valueAsDate = new Date();
-
-    await inicializarBaseDeDatos();
-    await cargarCategorias();
-    await actualizarTodo();
-
+document.addEventListener('DOMContentLoaded', () => {
+    // Listeners de Auth
+    document.getElementById('formLogin').addEventListener('submit', loginUsuario);
+    document.getElementById('formRegistro').addEventListener('submit', registrarUsuario);
+    
+    // Listeners de App
     document.getElementById('formTransaccion').addEventListener('submit', guardarTransaccion);
     document.getElementById('formCredito').addEventListener('submit', guardarCredito);
     document.getElementById('formSuscripcion').addEventListener('submit', guardarSuscripcion);
+
+    verificarSesion();
 });
+
+// ================= AUTENTICACIÓN =================
+function toggleAuth(modo) {
+    document.getElementById('formLogin').classList.toggle('hidden', modo !== 'login');
+    document.getElementById('formRegistro').classList.toggle('hidden', modo !== 'registro');
+}
+
+async function loginUsuario(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando...';
+
+    const formData = new URLSearchParams();
+    formData.append('username', document.getElementById('loginEmail').value);
+    formData.append('password', document.getElementById('loginPassword').value);
+
+    try {
+        const res = await fetch(`${API_URL}/usuarios/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('token', data.access_token);
+            verificarSesion();
+        } else {
+            alert('Correo o contraseña incorrectos');
+        }
+    } catch (err) { alert('Error conectando al servidor'); }
+    finally { btn.disabled = false; btn.innerHTML = '<span>Iniciar Sesión</span> <i class="fa-solid fa-arrow-right"></i>'; }
+}
+
+async function registrarUsuario(e) {
+    e.preventDefault();
+    const body = {
+        nombre: document.getElementById('regNombre').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/usuarios/registro`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+            alert('¡Cuenta creada! Ahora inicia sesión.');
+            toggleAuth('login');
+        } else {
+            const error = await res.json();
+            alert(`Error: ${error.detail}`);
+        }
+    } catch (err) { alert('Error conectando al servidor'); }
+}
+
+function cerrarSesion() {
+    localStorage.removeItem('token');
+    verificarSesion();
+}
+
+// Wrapper para Fetch Autorizado
+async function fetchAuth(url, options = {}) {
+    const token = localStorage.getItem('token');
+    const headers = { ...options.headers };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401) {
+        cerrarSesion();
+        throw new Error('Sesión expirada');
+    }
+    return res;
+}
+
+// ================= APLICACIÓN PRINCIPAL =================
+async function verificarSesion() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        document.getElementById('vistaAuth').classList.remove('hidden');
+        document.getElementById('appPrincipal').classList.add('hidden');
+    } else {
+        document.getElementById('vistaAuth').classList.add('hidden');
+        document.getElementById('appPrincipal').classList.remove('hidden');
+        document.getElementById('saludoUsuario').innerText = 'Hola, bienvenido de nuevo';
+        
+        document.getElementById('fecha_transaccion').valueAsDate = new Date();
+        document.getElementById('fecha_compra').valueAsDate = new Date();
+        
+        await inicializarBaseDeDatos();
+        await cargarCategorias();
+        await actualizarTodo();
+    }
+}
 
 // --- Pestañas ---
 const tabs = ['inicio', 'movimientos', 'creditos', 'suscripciones'];
@@ -24,38 +122,40 @@ function switchTab(tabSeleccionado) {
     tabs.forEach(t => {
         document.getElementById(`vista${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('hidden', t !== tabSeleccionado);
         const btn = document.getElementById(`btnTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
-        btn.className = t === tabSeleccionado 
-            ? 'bg-blue-900 px-4 py-2 rounded shadow font-semibold hover:bg-blue-700 transition' 
-            : 'bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition';
+        if(btn) {
+            btn.className = t === tabSeleccionado 
+                ? 'bg-blue-900 px-4 py-2 rounded shadow font-semibold hover:bg-blue-700 transition whitespace-nowrap' 
+                : 'bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition whitespace-nowrap';
+        }
     });
 }
 
 // --- Setup ---
 async function inicializarBaseDeDatos() {
     try {
-        const resE = await fetch(`${API_URL}/entidades/`);
+        const resE = await fetchAuth(`${API_URL}/entidades/`);
         const entidades = await resE.json();
         if (entidades.length === 0) {
-            const nueva = await fetch(`${API_URL}/entidades/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: "Mi Tarjeta Principal", dia_corte: 15, dia_limite_pago: 5 }) });
+            const nueva = await fetchAuth(`${API_URL}/entidades/`, { method: 'POST', body: JSON.stringify({ nombre: "Mi Tarjeta Principal", dia_corte: 15, dia_limite_pago: 5 }) });
             const data = await nueva.json();
             document.getElementById('entidad_id').value = data.id;
         } else {
             document.getElementById('entidad_id').value = entidades[0].id;
         }
 
-        const resC = await fetch(`${API_URL}/categorias/`);
+        const resC = await fetchAuth(`${API_URL}/categorias/`);
         const cats = await resC.json();
         if (cats.length === 0) {
-            await fetch(`${API_URL}/categorias/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: "Salario", tipo: "Ingreso" }) });
-            await fetch(`${API_URL}/categorias/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: "Comida", tipo: "Gasto" }) });
-            await fetch(`${API_URL}/categorias/`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: "Transporte", tipo: "Gasto" }) });
+            await fetchAuth(`${API_URL}/categorias/`, { method: 'POST', body: JSON.stringify({ nombre: "Salario", tipo: "Ingreso" }) });
+            await fetchAuth(`${API_URL}/categorias/`, { method: 'POST', body: JSON.stringify({ nombre: "Comida", tipo: "Gasto" }) });
+            await fetchAuth(`${API_URL}/categorias/`, { method: 'POST', body: JSON.stringify({ nombre: "Transporte", tipo: "Gasto" }) });
         }
-    } catch (e) { console.error("Error BD", e); }
+    } catch (e) { console.error(e); }
 }
 
 async function cargarCategorias() {
     try {
-        const res = await fetch(`${API_URL}/categorias/`);
+        const res = await fetchAuth(`${API_URL}/categorias/`);
         dataCategorias = await res.json();
         const select = document.getElementById('categoria_id');
         const selectSusc = document.getElementById('categoria_suscripcion_id');
@@ -73,7 +173,7 @@ async function actualizarTodo() {
     totalGastosMonto = 0;
     
     await cargarTransacciones();
-    await cargarCuotasYSuscripciones(); // Carga las tablas de los otros tabs y junta los "próximos pagos" para el inicio
+    await cargarCuotasYSuscripciones();
     
     const balance = totalIngresosMonto - totalGastosMonto;
     document.getElementById('dashIngresos').innerText = money.format(totalIngresosMonto);
@@ -85,18 +185,17 @@ async function cargarTransacciones() {
     const tbodyFull = document.getElementById('tablaTransacciones');
     const tbodyDash = document.getElementById('dashTablaMovimientos');
     try {
-        const res = await fetch(`${API_URL}/transacciones/`);
+        const res = await fetchAuth(`${API_URL}/transacciones/`);
         const txs = await res.json();
         tbodyFull.innerHTML = ''; tbodyDash.innerHTML = '';
 
         if (txs.length === 0) {
             tbodyFull.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">No hay movimientos.</td></tr>`;
-            tbodyDash.innerHTML = `<tr><td class="py-4 text-slate-500">No hay movimientos.</td></tr>`;
+            tbodyDash.innerHTML = `<tr><td class="py-4 text-slate-500 text-center">Aún no hay movimientos.</td></tr>`;
             return;
         }
 
         const txsReversadas = [...txs].reverse();
-        
         txsReversadas.forEach((t, i) => {
             const esIngreso = t.categoria.tipo === 'Ingreso';
             if (esIngreso) totalIngresosMonto += parseFloat(t.monto);
@@ -105,7 +204,6 @@ async function cargarTransacciones() {
             const color = esIngreso ? 'text-green-600' : 'text-red-600';
             const signo = esIngreso ? '+' : '-';
 
-            // Fila para tabla completa
             tbodyFull.innerHTML += `
                 <tr class="hover:bg-slate-50">
                     <td class="px-4 py-3 whitespace-nowrap text-slate-600">${t.fecha}</td>
@@ -115,7 +213,6 @@ async function cargarTransacciones() {
                 </tr>
             `;
 
-            // Fila resumida para el Dashboard (solo mostramos los últimos 5)
             if (i < 5) {
                 tbodyDash.innerHTML += `
                     <tr class="border-b border-slate-50 last:border-0">
@@ -137,22 +234,15 @@ async function cargarCuotasYSuscripciones() {
     let proximosPagos = [];
 
     try {
-        // 1. Cuotas de Créditos
-        const resC = await fetch(`${API_URL}/cuotas/pendientes/`);
+        const resC = await fetchAuth(`${API_URL}/cuotas/pendientes/`);
         const cuotas = await resC.json();
         tbodyCuotas.innerHTML = '';
-        
         if (cuotas.length === 0) {
             tbodyCuotas.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">No tienes deudas activas.</td></tr>`;
         } else {
             cuotas.forEach(c => {
                 totalGastosMonto += parseFloat(c.cuota_total);
-                proximosPagos.push({
-                    tipo: 'Cuota Crédito', 
-                    nombre: `Cuota ${c.numero_cuota}`, 
-                    monto: parseFloat(c.cuota_total), 
-                    vencimiento: c.fecha_vencimiento
-                });
+                proximosPagos.push({ tipo: 'Cuota Crédito', nombre: `Cuota ${c.numero_cuota}`, monto: parseFloat(c.cuota_total), vencimiento: c.fecha_vencimiento });
 
                 const vencida = new Date(c.fecha_vencimiento) < new Date();
                 const badge = vencida ? "bg-red-100 text-red-700" : "bg-blue-50 text-blue-700";
@@ -168,31 +258,20 @@ async function cargarCuotasYSuscripciones() {
             });
         }
 
-        // 2. Suscripciones
-        const resS = await fetch(`${API_URL}/suscripciones/`);
+        const resS = await fetchAuth(`${API_URL}/suscripciones/`);
         const suscripciones = await resS.json();
         tbodySusc.innerHTML = '';
-
         if (suscripciones.length === 0) {
             tbodySusc.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">No tienes suscripciones.</td></tr>`;
         } else {
             suscripciones.forEach(s => {
                 totalGastosMonto += parseFloat(s.monto);
-                
-                // Generar fecha virtual para el mes actual basada en el dia_cobro
                 const hoy = new Date();
                 let fechaCobro = new Date(hoy.getFullYear(), hoy.getMonth(), s.dia_cobro);
-                if (fechaCobro < hoy) {
-                    fechaCobro.setMonth(fechaCobro.getMonth() + 1); // Ya pasó este mes, mostramos el próximo
-                }
+                if (fechaCobro < hoy) fechaCobro.setMonth(fechaCobro.getMonth() + 1);
                 const fStr = fechaCobro.toISOString().split('T')[0];
 
-                proximosPagos.push({
-                    tipo: 'Suscripción', 
-                    nombre: s.nombre, 
-                    monto: parseFloat(s.monto), 
-                    vencimiento: fStr
-                });
+                proximosPagos.push({ tipo: 'Suscripción', nombre: s.nombre, monto: parseFloat(s.monto), vencimiento: fStr });
 
                 tbodySusc.innerHTML += `
                     <tr class="hover:bg-slate-50">
@@ -205,15 +284,11 @@ async function cargarCuotasYSuscripciones() {
             });
         }
 
-        // 3. Pintar en el Dashboard los próximos pagos (ordenados por fecha más cercana)
         tbodyDashPagos.innerHTML = '';
         if (proximosPagos.length === 0) {
-            tbodyDashPagos.innerHTML = `<tr><td class="py-4 text-slate-500">Nada que pagar pronto.</td></tr>`;
+            tbodyDashPagos.innerHTML = `<tr><td class="py-4 text-slate-500 text-center">Nada que pagar pronto.</td></tr>`;
         } else {
-            // Ordenar por fecha
             proximosPagos.sort((a,b) => new Date(a.vencimiento) - new Date(b.vencimiento));
-            
-            // Mostrar los primeros 6
             proximosPagos.slice(0, 6).forEach(p => {
                 const badge = p.tipo === 'Suscripción' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700';
                 tbodyDashPagos.innerHTML += `
@@ -226,11 +301,9 @@ async function cargarCuotasYSuscripciones() {
                 `;
             });
         }
-
     } catch (e) { console.error(e); }
 }
 
-// --- Formularios ---
 async function guardarTransaccion(e) {
     e.preventDefault();
     const body = {
@@ -239,7 +312,7 @@ async function guardarTransaccion(e) {
         fecha: document.getElementById('fecha_transaccion').value,
         descripcion: document.getElementById('desc_transaccion').value
     };
-    await fetch(`${API_URL}/transacciones/`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+    await fetchAuth(`${API_URL}/transacciones/`, { method: 'POST', body: JSON.stringify(body) });
     e.target.reset();
     document.getElementById('fecha_transaccion').valueAsDate = new Date();
     actualizarTodo();
@@ -257,7 +330,7 @@ async function guardarCredito(e) {
         numero_cuotas: parseInt(document.getElementById('numero_cuotas').value),
         fecha_compra: document.getElementById('fecha_compra').value
     };
-    await fetch(`${API_URL}/creditos/`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+    await fetchAuth(`${API_URL}/creditos/`, { method: 'POST', body: JSON.stringify(body) });
     e.target.reset();
     document.getElementById('fecha_compra').valueAsDate = new Date();
     actualizarTodo();
@@ -271,7 +344,7 @@ async function guardarSuscripcion(e) {
         categoria_id: parseInt(document.getElementById('categoria_suscripcion_id').value),
         dia_cobro: parseInt(document.getElementById('dia_cobro').value)
     };
-    await fetch(`${API_URL}/suscripciones/`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+    await fetchAuth(`${API_URL}/suscripciones/`, { method: 'POST', body: JSON.stringify(body) });
     e.target.reset();
     actualizarTodo();
 }
