@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey, Enum as SQLEnum, DateTime
+from sqlalchemy import Column, Integer, String, Numeric, Date, ForeignKey, Enum as SQLEnum, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
@@ -24,20 +24,29 @@ class EstadoCuota(str, enum.Enum):
 
 # --- Modelos ---
 
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    nombre = Column(String, nullable=False)
+
 class Categoria(Base):
     __tablename__ = "categorias"
 
     id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     nombre = Column(String, index=True, nullable=False)
     tipo = Column(SQLEnum(TipoCategoria), nullable=False)
 
     transacciones = relationship("TransaccionCorriente", back_populates="categoria")
 
-
 class TransaccionCorriente(Base):
     __tablename__ = "transacciones_corrientes"
 
     id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
     monto = Column(Numeric(12, 2), nullable=False)
     fecha = Column(Date, nullable=False)
@@ -50,6 +59,7 @@ class Suscripcion(Base):
     __tablename__ = "suscripciones"
 
     id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     nombre = Column(String, nullable=False)
     monto = Column(Numeric(12, 2), nullable=False)
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
@@ -63,21 +73,22 @@ class EntidadCrediticia(Base):
     __tablename__ = "entidades_crediticias"
 
     id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     nombre = Column(String, index=True, nullable=False)
     dia_corte = Column(Integer, nullable=False)
     dia_limite_pago = Column(Integer, nullable=False)
 
     creditos = relationship("CreditoCompra", back_populates="entidad")
 
-
 class CreditoCompra(Base):
     __tablename__ = "creditos_compras"
 
     id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     entidad_id = Column(Integer, ForeignKey("entidades_crediticias.id"), nullable=False)
     concepto = Column(String, nullable=False)
     monto_total = Column(Numeric(12, 2), nullable=False)
-    tasa_interes = Column(Numeric(5, 4), nullable=False) # Ejemplo: 0.0215 representa 2.15%
+    tasa_interes = Column(Numeric(5, 4), nullable=False)
     tipo_tasa = Column(SQLEnum(TipoTasa), nullable=False)
     numero_cuotas = Column(Integer, nullable=False)
     fecha_compra = Column(Date, nullable=False)
@@ -85,7 +96,6 @@ class CreditoCompra(Base):
 
     entidad = relationship("EntidadCrediticia", back_populates="creditos")
     tabla_amortizacion = relationship("TablaAmortizacion", back_populates="credito", cascade="all, delete-orphan")
-
 
 class TablaAmortizacion(Base):
     __tablename__ = "tabla_amortizacion"

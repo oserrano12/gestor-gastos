@@ -4,6 +4,24 @@ from datetime import date, datetime
 from decimal import Decimal
 from app.models.models import TipoCategoria, TipoTasa, EstadoCredito, EstadoCuota
 
+# --- Usuarios ---
+class UsuarioCreate(BaseModel):
+    email: str
+    password: str
+    nombre: str
+
+class UsuarioResponse(BaseModel):
+    id: int
+    email: str
+    nombre: str
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
 # --- Categorías ---
 class CategoriaBase(BaseModel):
     nombre: str
