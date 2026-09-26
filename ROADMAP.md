@@ -6,7 +6,7 @@ Este documento mantiene un registro de las futuras implementaciones y mejoras pl
 - [ ] **Recuperación de Contraseñas Segura:** Reemplazar el sistema de recuperación de contraseña directo por un flujo seguro usando envío de correos electrónicos (requiere integración con `fastapi-mail` y SMTP de Gmail o SendGrid).
 
 ## 📱 Despliegue y Empaquetado
-- [ ] **Empaquetado Nativo Móvil (.apk):** Convertir el frontend web actual en una aplicación instalable de Android utilizando Capacitor o Cordova.
+- [ ] **Empaquetado Nativo Móvil (.apk):** Firmar digitalmente el APK generado por PWABuilder (actualmente lanza error de "paquete no válido" por ser `unsigned`) o compilarlo localmente con Capacitor/Android Studio para su distribución oficial.
 - [ ] **Empaquetado Nativo Escritorio (.exe):** Convertir el frontend web en un programa de Windows utilizando Electron o Tauri.
 
 ## 📊 Funcionalidades Premium (Ideas)
