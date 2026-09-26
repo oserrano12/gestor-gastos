@@ -39,7 +39,7 @@ gestor-gastos/
 - [x] **Fase 2:** Backend - Base de Datos y Modelos.
 - [x] **Fase 3:** Lógica Financiera (El Core).
 - [x] **Fase 4:** API REST con FastAPI.
-- [ ] **Fase 5:** Frontend y Conversión a App (PWA).
+- [x] **Fase 5:** Frontend y Conversión a App (PWA).
 
 ## 💻 Instalación Local
 

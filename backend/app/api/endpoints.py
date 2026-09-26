@@ -9,6 +9,19 @@ from app.services.amortizacion import generar_tabla_amortizacion
 
 router = APIRouter()
 
+# --- Entidades Crediticias ---
+@router.post("/entidades/", response_model=schemas.EntidadResponse)
+def crear_entidad(entidad: schemas.EntidadCreate, db: Session = Depends(get_db)):
+    db_entidad = models.EntidadCrediticia(**entidad.model_dump())
+    db.add(db_entidad)
+    db.commit()
+    db.refresh(db_entidad)
+    return db_entidad
+
+@router.get("/entidades/", response_model=List[schemas.EntidadResponse])
+def obtener_entidades(db: Session = Depends(get_db)):
+    return db.query(models.EntidadCrediticia).all()
+
 # --- Transacciones Corrientes ---
 
 @router.post("/transacciones/", response_model=schemas.TransaccionResponse)
