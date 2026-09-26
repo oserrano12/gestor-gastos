@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,13 +8,13 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Librerías Premium -->
+    <!-- LibrerÃ­as Premium -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-50 font-sans leading-normal tracking-normal text-slate-800 h-screen flex flex-col">
     
-    <!-- ================= VISTA: AUTENTICACIÓN (LOGIN / REGISTRO) ================= -->
+    <!-- ================= VISTA: AUTENTICACIÃ“N (LOGIN / REGISTRO) ================= -->
     <div id="vistaAuth" class="flex-grow flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md border-t-4 border-blue-600">
             <div class="text-center mb-8">
@@ -30,11 +30,11 @@
                 <!-- Login -->
                 <form id="formLogin" class="space-y-5">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-600 mb-1">Correo Electrónico</label>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Correo ElectrÃ³nico</label>
                         <input type="email" id="loginEmail" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 p-2.5 border bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-600 mb-1">Contraseña</label>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">ContraseÃ±a</label>
                         <div class="relative">
                             <input type="password" id="loginPassword" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 p-2.5 border bg-slate-50 pr-10">
                             <button type="button" onclick="togglePassword('loginPassword', 'eyeLogin')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
@@ -43,13 +43,13 @@
                         </div>
                     </div>
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors flex justify-center items-center gap-2">
-                        <span>Iniciar Sesión</span> <i class="fa-solid fa-arrow-right"></i>
+                        <span>Iniciar SesiÃ³n</span> <i class="fa-solid fa-arrow-right"></i>
                     </button>
                     <p class="text-center text-sm text-slate-500 mt-4">
-                        ¿Olvidaste tu contraseña? <a href="#" onclick="toggleAuth('recuperar')" class="text-orange-500 font-bold hover:underline">Recupérala aquí</a>
+                        Â¿Olvidaste tu contraseÃ±a? <a href="#" onclick="toggleAuth('recuperar')" class="text-orange-500 font-bold hover:underline">RecupÃ©rala aquÃ­</a>
                     </p>
                     <p class="text-center text-sm text-slate-500 mt-2">
-                        ¿No tienes cuenta? <a href="#" onclick="toggleAuth('registro')" class="text-blue-600 font-bold hover:underline">Regístrate aquí</a>
+                        Â¿No tienes cuenta? <a href="#" onclick="toggleAuth('registro')" class="text-blue-600 font-bold hover:underline">RegÃ­strate aquÃ­</a>
                     </p>
                 </form>
 
@@ -60,11 +60,11 @@
                         <input type="text" id="regNombre" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 p-2.5 border bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-600 mb-1">Correo Electrónico</label>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Correo ElectrÃ³nico</label>
                         <input type="email" id="regEmail" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 p-2.5 border bg-slate-50">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-600 mb-1">Contraseña</label>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">ContraseÃ±a</label>
                         <div class="relative">
                             <input type="password" id="regPassword" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 p-2.5 border bg-slate-50 pr-10">
                             <button type="button" onclick="togglePassword('regPassword', 'eyeReg')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
@@ -73,23 +73,23 @@
                         </div>
                     </div>
                     <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors">
-                        Crear Cuenta Grátis
+                        Crear Cuenta GrÃ¡tis
                     </button>
                     <p class="text-center text-sm text-slate-500 mt-4">
-                        ¿Ya tienes cuenta? <a href="#" onclick="toggleAuth('login')" class="text-blue-600 font-bold hover:underline">Inicia sesión</a>
+                        Â¿Ya tienes cuenta? <a href="#" onclick="toggleAuth('login')" class="text-blue-600 font-bold hover:underline">Inicia sesiÃ³n</a>
                     </p>
                 </form>
 
-                <!-- Recuperar Contraseña (Oculto por defecto) -->
+                <!-- Recuperar ContraseÃ±a (Oculto por defecto) -->
                 <form id="formRecuperar" class="space-y-4 hidden">
-                    <p class="text-sm text-slate-500 text-center mb-4">Ingresa tu correo para cambiar tu contraseña.</p>
+                    <p class="text-sm text-slate-500 text-center mb-4">Ingresa tu correo para cambiar tu contraseÃ±a.</p>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-600 mb-1">Correo Electrónico</label>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Correo ElectrÃ³nico</label>
                         <input type="email" id="recupEmail" required class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 p-2.5 border bg-slate-50">
                     </div>
                     <div id="divNuevaClave" class="hidden space-y-4">
                         <div>
-                            <label class="block text-sm font-semibold text-slate-600 mb-1">Nueva Contraseña</label>
+                            <label class="block text-sm font-semibold text-slate-600 mb-1">Nueva ContraseÃ±a</label>
                             <input type="password" id="recupPassword" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 p-2.5 border bg-slate-50">
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                         Buscar Cuenta
                     </button>
                     <button type="button" id="btnGuardarClave" onclick="guardarNuevaClave()" class="hidden w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors">
-                        Guardar Nueva Contraseña
+                        Guardar Nueva ContraseÃ±a
                     </button>
                     <p class="text-center text-sm text-slate-500 mt-4">
                         <a href="#" onclick="toggleAuth('login')" class="text-blue-600 font-bold hover:underline">Volver al Login</a>
@@ -107,7 +107,7 @@
         </div>
     </div>
 
-    <!-- ================= APLICACIÓN PRINCIPAL (OCULTA HASTA LOGIN) ================= -->
+    <!-- ================= APLICACIÃ“N PRINCIPAL (OCULTA HASTA LOGIN) ================= -->
     <div id="appPrincipal" class="hidden flex-grow flex flex-col">
         <!-- Navbar -->
         <nav class="bg-blue-800 p-4 shadow-lg text-white">
@@ -118,7 +118,7 @@
                 <div class="flex gap-2 overflow-x-auto pb-1">
                     <button onclick="switchTab('inicio')" id="btnTabInicio" class="bg-blue-900 px-4 py-2 rounded shadow font-semibold hover:bg-blue-700 transition whitespace-nowrap">Inicio</button>
                     <button onclick="switchTab('movimientos')" id="btnTabMovimientos" class="bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition whitespace-nowrap">Movimientos</button>
-                    <button onclick="switchTab('creditos')" id="btnTabCreditos" class="bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition whitespace-nowrap">Créditos</button>
+                    <button onclick="switchTab('creditos')" id="btnTabCreditos" class="bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition whitespace-nowrap">CrÃ©ditos</button>
                     <button onclick="switchTab('suscripciones')" id="btnTabSuscripciones" class="bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition whitespace-nowrap">Suscripciones</button>
                 </div>
                 <div>
@@ -152,9 +152,9 @@
                     </div>
                 </div>
 
-                <!-- Gráficos Premium -->
+                <!-- GrÃ¡ficos Premium -->
                 <div class="bg-white rounded-xl shadow-md p-6 mt-6">
-                    <h3 class="text-lg font-bold text-slate-700 mb-4 border-b pb-2"><i class="fa-solid fa-chart-pie mr-2 text-blue-500"></i>Distribución de Gastos vs Ingresos</h3>
+                    <h3 class="text-lg font-bold text-slate-700 mb-4 border-b pb-2"><i class="fa-solid fa-chart-pie mr-2 text-blue-500"></i>DistribuciÃ³n de Gastos vs Ingresos</h3>
                     <div class="w-full h-64 flex justify-center">
                         <canvas id="graficoFinanzas"></canvas>
                     </div>
@@ -162,7 +162,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
                     <div class="bg-white rounded-xl shadow-md p-6">
-                        <h3 class="text-lg font-bold text-slate-700 mb-4 border-b pb-2"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-500"></i>Últimos Movimientos</h3>
+                        <h3 class="text-lg font-bold text-slate-700 mb-4 border-b pb-2"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-500"></i>Ãšltimos Movimientos</h3>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-sm">
                                 <tbody id="dashTablaMovimientos" class="divide-y divide-slate-100"></tbody>
@@ -171,7 +171,7 @@
                     </div>
 
                     <div class="bg-white rounded-xl shadow-md p-6">
-                        <h3 class="text-lg font-bold text-slate-700 mb-4 border-b pb-2"><i class="fa-solid fa-calendar-check mr-2 text-red-500"></i>Próximos Pagos</h3>
+                        <h3 class="text-lg font-bold text-slate-700 mb-4 border-b pb-2"><i class="fa-solid fa-calendar-check mr-2 text-red-500"></i>PrÃ³ximos Pagos</h3>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-sm">
                                 <tbody id="dashTablaPagos" class="divide-y divide-slate-100"></tbody>
@@ -183,14 +183,14 @@
 
             <!-- VISTA: MOVIMIENTOS -->
             <div id="vistaMovimientos" class="hidden space-y-6">
-                <h2 class="text-2xl font-bold text-slate-700 border-b pb-2">Gestión de Movimientos</h2>
+                <h2 class="text-2xl font-bold text-slate-700 border-b pb-2">GestiÃ³n de Movimientos</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-1 bg-white rounded-xl shadow-md p-6 h-fit">
                         <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2"><i class="fa-solid fa-money-bill-transfer text-blue-500 mr-2"></i> Nuevo Movimiento</h2>
                         <form id="formTransaccion" class="space-y-4">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-500 uppercase">Categoría</label>
-                                <input type="text" id="transCategoriaInput" list="listaCategoriasAutocompletar" placeholder="Ej. Alimentación, Transporte..." autocomplete="off" required class="mt-1 block w-full rounded border-slate-300 p-2 border bg-white">
+                                <label class="block text-xs font-semibold text-slate-500 uppercase">CategorÃ­a</label>
+                                <input type="text" id="transCategoriaInput" list="listaCategoriasAutocompletar" placeholder="Ej. AlimentaciÃ³n, Transporte..." autocomplete="off" required class="mt-1 block w-full rounded border-slate-300 p-2 border bg-white">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 uppercase">Monto ($)</label>
@@ -201,7 +201,7 @@
                                 <input type="date" id="fecha_transaccion" required class="mt-1 block w-full rounded border-slate-300 p-2 border">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-500 uppercase">Descripción</label>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase">DescripciÃ³n</label>
                                 <input type="text" id="desc_transaccion" class="mt-1 block w-full rounded border-slate-300 p-2 border">
                             </div>
                             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow">Guardar</button>
@@ -219,8 +219,8 @@
                                 <thead class="bg-slate-50">
                                     <tr>
                                         <th class="px-4 py-3 text-left font-semibold text-slate-500">Fecha</th>
-                                        <th class="px-4 py-3 text-left font-semibold text-slate-500">Categoría</th>
-                                        <th class="px-4 py-3 text-left font-semibold text-slate-500">Descripción</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-slate-500">CategorÃ­a</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-slate-500">DescripciÃ³n</th>
                                         <th class="px-4 py-3 text-right font-semibold text-slate-500">Monto</th>
                                     </tr>
                                 </thead>
@@ -231,12 +231,12 @@
                 </div>
             </div>
 
-            <!-- VISTA: CRÉDITOS -->
+            <!-- VISTA: CRÃ‰DITOS -->
             <div id="vistaCreditos" class="hidden space-y-6">
-                <h2 class="text-2xl font-bold text-slate-700 border-b pb-2">Gestión de Créditos</h2>
+                <h2 class="text-2xl font-bold text-slate-700 border-b pb-2">GestiÃ³n de CrÃ©ditos</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-1 bg-white rounded-xl shadow-md p-6 h-fit">
-                        <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2"><i class="fa-solid fa-credit-card mr-2 text-blue-500"></i> Registrar Crédito</h2>
+                        <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2"><i class="fa-solid fa-credit-card mr-2 text-blue-500"></i> Registrar CrÃ©dito</h2>
                         <form id="formCredito" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 uppercase">Concepto</label>
@@ -257,7 +257,7 @@
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div><label class="block text-xs font-semibold text-slate-500 uppercase">N° Cuotas</label><input type="number" id="numero_cuotas" required min="1" class="mt-1 block w-full rounded border-slate-300 p-2 border"></div>
+                                <div><label class="block text-xs font-semibold text-slate-500 uppercase">NÂ° Cuotas</label><input type="number" id="numero_cuotas" required min="1" class="mt-1 block w-full rounded border-slate-300 p-2 border"></div>
                                 <div><label class="block text-xs font-semibold text-slate-500 uppercase">Fecha Compra</label><input type="date" id="fecha_compra" required class="mt-1 block w-full rounded border-slate-300 p-2 border text-sm"></div>
                             </div>
                             <input type="hidden" id="entidad_id" value="1">
@@ -266,7 +266,7 @@
                     </div>
                     <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
                         <div class="flex justify-between items-center mb-4 border-b pb-2">
-                            <h2 class="text-lg font-bold text-slate-700"><i class="fa-solid fa-calendar-days text-blue-500 mr-2"></i> Tabla de Amortización</h2>
+                            <h2 class="text-lg font-bold text-slate-700"><i class="fa-solid fa-calendar-days text-blue-500 mr-2"></i> Tabla de AmortizaciÃ³n</h2>
                             <button onclick="exportarExcel('tablaCuotas', 'Amortizacion')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-bold shadow flex items-center gap-2">
                                 <i class="fa-solid fa-file-excel"></i> Excel
                             </button>
@@ -278,7 +278,7 @@
                                         <th class="px-4 py-3 text-left">Vencimiento</th>
                                         <th class="px-4 py-3 text-left">Cuota</th>
                                         <th class="px-4 py-3 text-right">Capital</th>
-                                        <th class="px-4 py-3 text-right">Interés</th>
+                                        <th class="px-4 py-3 text-right">InterÃ©s</th>
                                         <th class="px-4 py-3 text-right font-bold">Total</th>
                                     </tr>
                                 </thead>
@@ -291,15 +291,15 @@
 
             <!-- VISTA: SUSCRIPCIONES -->
             <div id="vistaSuscripciones" class="hidden space-y-6">
-                <h2 class="text-2xl font-bold text-slate-700 border-b pb-2">Gestión de Suscripciones</h2>
+                <h2 class="text-2xl font-bold text-slate-700 border-b pb-2">GestiÃ³n de Suscripciones</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-1 bg-white rounded-xl shadow-md p-6 h-fit">
-                        <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2"><i class="fa-solid fa-repeat text-blue-500 mr-2"></i> Nueva Suscripción</h2>
+                        <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2"><i class="fa-solid fa-repeat text-blue-500 mr-2"></i> Nueva SuscripciÃ³n</h2>
                         <form id="formSuscripcion" class="space-y-4">
                             <div><label class="block text-xs font-semibold text-slate-500 uppercase">Nombre</label><input type="text" id="nombre_suscripcion" required class="mt-1 block w-full rounded border-slate-300 p-2 border"></div>
                             <div><label class="block text-xs font-semibold text-slate-500 uppercase">Monto Mensual</label><input type="text" inputmode="numeric" data-type="currency" id="monto_suscripcion" required class="mt-1 block w-full rounded border-slate-300 p-2 border"></div>
-                            <div><label class="block text-xs font-semibold text-slate-500 uppercase">Categoría</label><input type="text" id="categoria_suscripcion_id" list="listaCategoriasAutocompletar" placeholder="Ej. Netflix, Gimnasio..." autocomplete="off" required class="mt-1 block w-full rounded border-slate-300 p-2 border bg-white"></div>
-                            <div><label class="block text-xs font-semibold text-slate-500 uppercase">Día de Cobro (1-31)</label><input type="number" id="dia_cobro" min="1" max="31" required class="mt-1 block w-full rounded border-slate-300 p-2 border"></div>
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase">CategorÃ­a</label><input type="text" id="categoria_suscripcion_id" list="listaCategoriasAutocompletar" placeholder="Ej. Netflix, Gimnasio..." autocomplete="off" required class="mt-1 block w-full rounded border-slate-300 p-2 border bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-slate-500 uppercase">DÃ­a de Cobro (1-31)</label><input type="number" id="dia_cobro" min="1" max="31" required class="mt-1 block w-full rounded border-slate-300 p-2 border"></div>
                             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow">Activar</button>
                         </form>
                     </div>
@@ -310,7 +310,7 @@
                                 <thead class="bg-slate-50">
                                     <tr>
                                         <th class="px-4 py-3 text-left">Servicio</th>
-                                        <th class="px-4 py-3 text-center">Día Cobro</th>
+                                        <th class="px-4 py-3 text-center">DÃ­a Cobro</th>
                                         <th class="px-4 py-3 text-right">Monto</th>
                                         <th class="px-4 py-3 text-center">Estado</th>
                                         <th class="px-4 py-3 text-center">Acciones</th>
@@ -326,7 +326,7 @@
 
             <!-- VISTA: CUENTAS -->
             <div id="vistaCuentas" class="hidden space-y-6">
-                <h2 class="text-2xl font-bold text-slate-700 border-b pb-2">Gestión de Cuentas</h2>
+                <h2 class="text-2xl font-bold text-slate-700 border-b pb-2">GestiÃ³n de Cuentas</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-1 bg-white rounded-xl shadow-md p-6 h-fit border-t-4 border-blue-500">
                         <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2"><i class="fa-solid fa-plus text-blue-500 mr-2"></i> Nueva Cuenta</h2>
@@ -356,6 +356,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
 </body>
 </html>
