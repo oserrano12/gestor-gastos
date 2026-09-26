@@ -151,7 +151,7 @@ async function registrarUsuario(e) {
     }
 
     const bodyTrans = {
-        monto: parseFloat(document.getElementById('transMonto').value),
+        monto: getMonto('transMonto'),
         fecha: document.getElementById('transFecha').value,
         categoria_id: categoriaId,
         cuenta_id: parseInt(document.getElementById('transCuenta').value),
@@ -473,7 +473,7 @@ async function guardarCredito(e) {
     const body = {
         entidad_id: parseInt(document.getElementById('entidad_id').value),
         concepto: document.getElementById('concepto').value,
-        monto_total: parseFloat(document.getElementById('monto_total').value),
+        monto_total: getMonto('monto_total'),
         tasa_interes: tasa,
         tipo_tasa: document.getElementById('tipo_tasa').value,
         numero_cuotas: parseInt(document.getElementById('numero_cuotas').value),
@@ -515,7 +515,7 @@ async function guardarSuscripcion(e) {
 
     const bodyTrans = {
         nombre: document.getElementById('nombre_suscripcion').value,
-        monto: parseFloat(document.getElementById('monto_suscripcion').value),
+        monto: getMonto('monto_suscripcion'),
         categoria_id: catId,
         dia_cobro: parseInt(document.getElementById('dia_cobro').value)
     };
@@ -595,4 +595,35 @@ async function eliminarSuscripcion(id) {
         if(res.ok) actualizarTodo();
         else alert('Error al eliminar');
     } catch(e) { console.error(e); }
+}
+
+
+// ================= FORMATO MONEDA EN INPUTS =================
+function aplicarMascaraMoneda(event) {
+    let input = event.target;
+    // Eliminar todo lo que no sea número
+    let valor = input.value.replace(/\D/g, "");
+    if (valor === "") {
+        input.dataset.raw_value = "";
+        input.value = "";
+        return;
+    }
+    // Guardar el valor matemático real en un atributo data-raw_value
+    input.dataset.raw_value = valor;
+    
+    // Formatear con puntos de miles
+    input.value = new Intl.NumberFormat('es-CO').format(valor);
+}
+
+document.querySelectorAll('input[data-type="currency"]').forEach(input => {
+    input.addEventListener('input', aplicarMascaraMoneda);
+});
+
+// Función auxiliar para leer el valor numérico real de los inputs
+function getMonto(id) {
+    const input = document.getElementById(id);
+    if (input.dataset.raw_value) {
+        return parseFloat(input.dataset.raw_value);
+    }
+    return parseFloat(input.value) || 0;
 }
