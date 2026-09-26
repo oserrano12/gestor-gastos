@@ -462,3 +462,6 @@ async function guardarSuscripcion(e) {
     e.target.reset();
     actualizarTodo();
 }
+
+// Registro PWA
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }
