@@ -170,12 +170,20 @@ async function fetchAuth(url, options = {}) {
     if (token) headers['Authorization'] = `Bearer ${token}`;
     if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
 
-    const res = await fetch(url, { ...options, headers });
-    if (res.status === 401) {
-        cerrarSesion();
-        throw new Error('Sesi├│n expirada');
+    try {
+        const res = await fetch(url, { ...options, headers });
+        if (res.status === 401) {
+            const data = await res.json().catch(() => ({}));
+            alert(`Fallo de Seguridad 401 en: ${url}
+Raz├│n: ${data.detail || 'Sesi├│n expirada'}`);
+            cerrarSesion();
+            throw new Error('Sesi├│n expirada');
+        }
+        return res;
+    } catch(err) {
+        console.error("FetchAuth Error:", err);
+        throw err;
     }
-    return res;
 }
 
 // ================= APLICACI├ôN PRINCIPAL =================
@@ -199,7 +207,7 @@ async function verificarSesion() {
 }
 
 // --- Pesta├▒as ---
-const tabs = ['inicio', 'movimientos', 'creditos', 'suscripciones'];
+const tabs = ['inicio', 'movimientos', 'creditos', 'suscripciones', 'cuentas'];
 function switchTab(tabSeleccionado) {
     tabs.forEach(t => {
         document.getElementById(`vista${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('hidden', t !== tabSeleccionado);
@@ -240,12 +248,7 @@ async function cargarCategorias() {
         const res = await fetchAuth(`${API_URL}/categorias/`);
         dataCategorias = await res.json();
         const select = document.getElementById('categoria_id');
-        const selectSusc = document.getElementById('categoria_suscripcion_id');
-        select.innerHTML = ''; selectSusc.innerHTML = '';
-        dataCategorias.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.nombre} (${c.tipo})</option>`;
-            if(c.tipo === 'Gasto') selectSusc.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
-        });
+        // select categories is handled by datalist now
     } catch (e) { console.error(e); }
 }
 
@@ -340,6 +343,9 @@ async function cargarTransacciones() {
                     <td class="px-4 py-3 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded bg-slate-100 border text-slate-600">${t.categoria.nombre}</span></td>
                     <td class="px-4 py-3 text-slate-700">${t.descripcion || '-'}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-right font-bold ${color}">${signo}${money.format(t.monto)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                        <button onclick="eliminarTransaccion(${t.id})" class="text-red-500 hover:text-red-700 transition" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </td>
                 </tr>
             `;
 
@@ -409,6 +415,9 @@ async function cargarCuotasYSuscripciones() {
                         <td class="px-4 py-3 text-center text-slate-600">D├¡a ${s.dia_cobro}</td>
                         <td class="px-4 py-3 text-right font-bold text-red-600">-${money.format(s.monto)}</td>
                         <td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">Activa</span></td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="eliminarSuscripcion(${s.id})" class="text-red-500 hover:text-red-700 transition" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
                     </tr>
                 `;
             });
@@ -460,14 +469,14 @@ async function guardarTransaccion(e) {
             dataCategorias.push(nuevaCat);
             categoriaId = nuevaCat.id;
         } else {
-            alert('Error al crear nueva categoría');
+            alert('Error al crear nueva categor├¡a');
             if (btn) { btn.disabled = false; btn.innerHTML = 'Guardar'; }
             return;
         }
     }
 
     const bodyTrans = {
-        monto: getMonto('monto_transaccion'),
+        monto: getMonto('transMonto'),
         fecha: document.getElementById('transFecha').value,
         categoria_id: categoriaId,
         cuenta_id: parseInt(document.getElementById('transCuenta').value),
@@ -507,14 +516,42 @@ async function guardarCredito(e) {
 
 async function guardarSuscripcion(e) {
     e.preventDefault();
-    const body = {
+    const btn = e.target.querySelector('button[type="submit"]');
+    const original = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = 'Guardando...';
+
+    const nombreCat = document.getElementById('categoria_suscripcion_id').value.trim();
+    let catId = null;
+    const existe = dataCategorias.find(c => c.nombre.toLowerCase() === nombreCat.toLowerCase() && c.tipo === "Gasto");
+    
+    if (existe) {
+        catId = existe.id;
+    } else {
+        const resNueva = await fetchAuth(`${API_URL}/categorias/`, {
+            method: 'POST',
+            body: JSON.stringify({ nombre: nombreCat, tipo: "Gasto" })
+        });
+        if(resNueva.ok) {
+            const nuevaCat = await resNueva.json();
+            dataCategorias.push(nuevaCat);
+            catId = nuevaCat.id;
+        } else {
+            alert('Error al crear categor├¡a de suscripci├│n');
+            btn.disabled = false; btn.innerHTML = original;
+            return;
+        }
+    }
+
+    const bodyTrans = {
         nombre: document.getElementById('nombre_suscripcion').value,
-        monto: parseFloat(document.getElementById('monto_suscripcion').value),
-        categoria_id: parseInt(document.getElementById('categoria_suscripcion_id').value),
+        monto: getMonto('monto_suscripcion'),
+        categoria_id: catId,
         dia_cobro: parseInt(document.getElementById('dia_cobro').value)
     };
-    await fetchAuth(`${API_URL}/suscripciones/`, { method: 'POST', body: JSON.stringify(body) });
+    
+    await fetchAuth(`${API_URL}/suscripciones/`, { method: 'POST', body: JSON.stringify(bodyTrans) });
     e.target.reset();
+    btn.disabled = false; btn.innerHTML = original;
     actualizarTodo();
 }
 
@@ -537,7 +574,7 @@ async function crearCuenta(e) {
     try {
         const res = await fetchAuth(`${API_URL}/cuentas/`, {
             method: 'POST',
-            body: JSON.stringify(body)
+            body: JSON.stringify(bodyTrans)
         });
         if(res.ok) {
             e.target.reset();
@@ -567,4 +604,55 @@ function renderizarCuentas() {
             </div>
         </div>
     `).join('');
+}
+
+
+// ================= ELIMINAR REGISTROS =================
+async function eliminarTransaccion(id) {
+    if(!confirm('┬┐Est├ís seguro de eliminar este movimiento? (Esto actualizar├í el saldo de tu cuenta)')) return;
+    try {
+        const res = await fetchAuth(`${API_URL}/transacciones/${id}`, { method: 'DELETE' });
+        if(res.ok) actualizarTodo();
+        else alert('Error al eliminar');
+    } catch(e) { console.error(e); }
+}
+
+async function eliminarSuscripcion(id) {
+    if(!confirm('┬┐Est├ís seguro de eliminar esta suscripci├│n?')) return;
+    try {
+        const res = await fetchAuth(`${API_URL}/suscripciones/${id}`, { method: 'DELETE' });
+        if(res.ok) actualizarTodo();
+        else alert('Error al eliminar');
+    } catch(e) { console.error(e); }
+}
+
+
+// ================= FORMATO MONEDA EN INPUTS =================
+function aplicarMascaraMoneda(event) {
+    let input = event.target;
+    // Eliminar todo lo que no sea n├║mero
+    let valor = input.value.replace(/\D/g, "");
+    if (valor === "") {
+        input.dataset.raw_value = "";
+        input.value = "";
+        return;
+    }
+    // Guardar el valor matem├ítico real en un atributo data-raw_value
+    input.dataset.raw_value = valor;
+    
+    // Formatear con puntos de miles
+    input.value = new Intl.NumberFormat('es-CO').format(valor);
+}
+
+document.querySelectorAll('input[data-type="currency"]').forEach(input => {
+    input.addEventListener('input', aplicarMascaraMoneda);
+});
+
+// Funci├│n auxiliar para leer el valor num├®rico real de los inputs
+function getMonto(id) {
+    const input = document.getElementById(id);
+    if (input.dataset.raw_value) {
+        return parseFloat(input.dataset.raw_value);
+    }
+    return parseFloat(input.value) || 0;
 }
