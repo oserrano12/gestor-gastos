@@ -463,22 +463,59 @@ async function cargarCuotasYSuscripciones() {
 
 async function guardarTransaccion(e) {
     e.preventDefault();
-    const body = {
-        categoria_id: parseInt(document.getElementById('categoria_id').value),
-        monto: parseFloat(document.getElementById('monto_transaccion').value),
-        fecha: document.getElementById('fecha_transaccion').value,
-        descripcion: document.getElementById('desc_transaccion').value
+    const btn = e.target.querySelector('button[type="submit"]');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = 'Guardando...';
+    }
+
+    const nombreCat = document.getElementById('transCategoriaInput').value.trim();
+    let categoriaId = null;
+    const tipoActivo = document.getElementById('btnTipoGasto').classList.contains('bg-red-600') ? 'Gasto' : 'Ingreso';
+    
+    const existe = dataCategorias.find(c => c.nombre.toLowerCase() === nombreCat.toLowerCase() && c.tipo === tipoActivo);
+    
+    if (existe) {
+        categoriaId = existe.id;
+    } else {
+        const resNueva = await fetchAuth(`${API_URL}/categorias/`, {
+            method: 'POST',
+            body: JSON.stringify({ nombre: nombreCat, tipo: tipoActivo })
+        });
+        if(resNueva.ok) {
+            const nuevaCat = await resNueva.json();
+            dataCategorias.push(nuevaCat);
+            categoriaId = nuevaCat.id;
+        } else {
+            alert('Error al crear nueva categoría');
+            if (btn) { btn.disabled = false; btn.innerHTML = 'Guardar'; }
+            return;
+        }
+    }
+
+    const bodyTrans = {
+        monto: getMonto('transMonto'),
+        fecha: document.getElementById('transFecha').value,
+        categoria_id: categoriaId,
+        cuenta_id: parseInt(document.getElementById('transCuenta').value),
+        descripcion: document.getElementById('transDescripcion').value
     };
+    
     await fetchAuth(`${API_URL}/transacciones/`, { method: 'POST', body: JSON.stringify(bodyTrans) });
     e.target.reset();
-    document.getElementById('fecha_transaccion').valueAsDate = new Date();
+    document.getElementById('transFecha').valueAsDate = new Date();
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Guardar'; }
     actualizarTodo();
 }
 
 async function guardarCredito(e) {
     e.preventDefault();
-    let tasa = parseFloat(document.getElementById('tasa_interes').value) / 100.0;
-    const body = {
+    const btn = e.target.querySelector('button[type="submit"]');
+    const original = btn ? btn.innerHTML : 'Generar';
+    if(btn) { btn.disabled = true; btn.innerHTML = 'Generando...'; }
+
+    let tasa = parseFloat(document.getElementById('tasa_interes').value.replace(',', '.')) / 100.0;
+    const bodyCredito = {
         entidad_id: parseInt(document.getElementById('entidad_id').value),
         concepto: document.getElementById('concepto').value,
         monto_total: getMonto('monto_total'),
@@ -487,9 +524,11 @@ async function guardarCredito(e) {
         numero_cuotas: parseInt(document.getElementById('numero_cuotas').value),
         fecha_compra: document.getElementById('fecha_compra').value
     };
-    await fetchAuth(`${API_URL}/creditos/`, { method: 'POST', body: JSON.stringify(bodyTrans) });
+    
+    await fetchAuth(`${API_URL}/creditos/`, { method: 'POST', body: JSON.stringify(bodyCredito) });
     e.target.reset();
     document.getElementById('fecha_compra').valueAsDate = new Date();
+    if(btn) { btn.disabled = false; btn.innerHTML = original; }
     actualizarTodo();
 }
 
