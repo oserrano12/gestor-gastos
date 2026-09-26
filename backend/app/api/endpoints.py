@@ -23,6 +23,12 @@ def registrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_
     db.add(nuevo_usuario)
     db.commit()
     db.refresh(nuevo_usuario)
+    
+    # NUEVO: Crear cuenta Efectivo por defecto
+    cuenta = models.Cuenta(usuario_id=nuevo_usuario.id, nombre="Efectivo", color="#10b981")
+    db.add(cuenta)
+    db.commit()
+    
     return nuevo_usuario
 
 @router.post("/usuarios/login", response_model=schemas.Token)

@@ -29,6 +29,54 @@ class ResetearPassword(BaseModel):
     token: str
     new_password: str
 
+# --- Cuentas (NUEVO) ---
+class CuentaBase(BaseModel):
+    nombre: str
+    color: Optional[str] = "#3b82f6"
+
+class CuentaCreate(CuentaBase):
+    pass
+
+class CuentaResponse(CuentaBase):
+    id: int
+    saldo: float
+    
+    class Config:
+        orm_mode = True
+
+# --- Metas de Ahorro (NUEVO) ---
+class MetaAhorroBase(BaseModel):
+    nombre: str
+    monto_objetivo: float
+    fecha_limite: Optional[date] = None
+
+class MetaAhorroCreate(MetaAhorroBase):
+    pass
+
+class MetaAhorroResponse(MetaAhorroBase):
+    id: int
+    monto_actual: float
+    completada: bool
+    
+    class Config:
+        orm_mode = True
+
+# --- Presupuestos (NUEVO) ---
+class PresupuestoBase(BaseModel):
+    categoria_id: int
+    monto_limite: float
+    mes: int
+    anio: int
+
+class PresupuestoCreate(PresupuestoBase):
+    pass
+
+class PresupuestoResponse(PresupuestoBase):
+    id: int
+    
+    class Config:
+        orm_mode = True
+
 # --- Categorías ---
 class CategoriaBase(BaseModel):
     nombre: str
@@ -45,6 +93,7 @@ class CategoriaResponse(CategoriaBase):
 # --- Transacciones Corrientes ---
 class TransaccionBase(BaseModel):
     categoria_id: int
+    cuenta_id: Optional[int] = None # Temporalmente opcional por migración
     monto: Decimal = Field(..., max_digits=12, decimal_places=2)
     fecha: date
     descripcion: Optional[str] = None

@@ -22,7 +22,36 @@ class EstadoCuota(str, enum.Enum):
     pagada = "Pagada"
     mora = "Mora"
 
-# --- Modelos ---
+# --- Modelos Nuevos ---
+class Cuenta(Base):
+    __tablename__ = "cuentas"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    nombre = Column(String, nullable=False) # ej. Efectivo, Bancolombia
+    color = Column(String, default="#3b82f6")
+    
+    transacciones = relationship("TransaccionCorriente", back_populates="cuenta")
+
+class MetaAhorro(Base):
+    __tablename__ = "metas_ahorro"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    nombre = Column(String, nullable=False)
+    monto_objetivo = Column(Numeric(12, 2), nullable=False)
+    monto_actual = Column(Numeric(12, 2), default=0.0)
+    fecha_limite = Column(Date, nullable=True)
+    completada = Column(Boolean, default=False)
+
+class Presupuesto(Base):
+    __tablename__ = "presupuestos"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
+    monto_limite = Column(Numeric(12, 2), nullable=False)
+    mes = Column(Integer, nullable=False)
+    anio = Column(Integer, nullable=False)
+
+# --- Modelos Existentes y Modificados ---
 
 class Usuario(Base):
     __tablename__ = "usuarios"
@@ -48,12 +77,14 @@ class TransaccionCorriente(Base):
     id = Column(Integer, primary_key=True, index=True)
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
+    cuenta_id = Column(Integer, ForeignKey("cuentas.id"), nullable=True) # NUEVO: nullable=True temporalmente para la migracion
     monto = Column(Numeric(12, 2), nullable=False)
     fecha = Column(Date, nullable=False)
     descripcion = Column(String, nullable=True)
     creado_en = Column(DateTime(timezone=True), server_default=func.now())
 
     categoria = relationship("Categoria", back_populates="transacciones")
+    cuenta = relationship("Cuenta", back_populates="transacciones")
 
 class Suscripcion(Base):
     __tablename__ = "suscripciones"
@@ -63,8 +94,8 @@ class Suscripcion(Base):
     nombre = Column(String, nullable=False)
     monto = Column(Numeric(12, 2), nullable=False)
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=False)
-    dia_cobro = Column(Integer, nullable=False) # 1-31
-    activa = Column(Integer, default=1) # 1 = Activa, 0 = Inactiva
+    dia_cobro = Column(Integer, nullable=False) 
+    activa = Column(Integer, default=1) 
     creado_en = Column(DateTime(timezone=True), server_default=func.now())
 
     categoria = relationship("Categoria")
@@ -109,5 +140,6 @@ class TablaAmortizacion(Base):
     cuota_total = Column(Numeric(12, 2), nullable=False)
     estado = Column(SQLEnum(EstadoCuota), default=EstadoCuota.pendiente, nullable=False)
     fecha_pago_real = Column(Date, nullable=True)
+    cuenta_origen_id = Column(Integer, ForeignKey("cuentas.id"), nullable=True) # NUEVO: para saber de dónde se pagó
 
     credito = relationship("CreditoCompra", back_populates="tabla_amortizacion")
