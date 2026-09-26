@@ -190,11 +190,11 @@
                         <form id="formTransaccion" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 uppercase">Categoría</label>
-                                <select id="categoria_id" class="mt-1 block w-full rounded border-slate-300 p-2 border"></select>
+                                <input type="text" id="transCategoriaInput" list="listaCategoriasAutocompletar" placeholder="Ej. Alimentación, Transporte..." autocomplete="off" required class="mt-1 block w-full rounded border-slate-300 p-2 border bg-white">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 uppercase">Monto ($)</label>
-                                <input type="number" id="monto_transaccion" step="0.01" required class="mt-1 block w-full rounded border-slate-300 p-2 border">
+                                <input type="text" inputmode="numeric" data-type="currency" id="monto_transaccion" required class="mt-1 block w-full rounded border-slate-300 p-2 border">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 uppercase">Fecha</label>
@@ -244,7 +244,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 uppercase">Monto ($)</label>
-                                <input type="number" id="monto_total" step="0.01" required class="mt-1 block w-full rounded border-slate-300 p-2 border">
+                                <input type="text" inputmode="numeric" data-type="currency" id="monto_total" required class="mt-1 block w-full rounded border-slate-300 p-2 border">
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div><label class="block text-xs font-semibold text-slate-500 uppercase">Tasa (%)</label><input type="number" id="tasa_interes" step="0.0001" required class="mt-1 block w-full rounded border-slate-300 p-2 border" placeholder="Ej: 2.15"></div>
@@ -356,6 +356,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=4"></script>
+    <script src="app.js?v=6"></script>
 </body>
 </html>

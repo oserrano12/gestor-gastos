@@ -126,139 +126,36 @@ async function registrarUsuario(e) {
     const originalText = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando...';
 
-    // ================= CATEGORIA DINÁMICA =================
-    const nombreCat = document.getElementById('transCategoriaInput').value.trim();
-    let categoriaId = null;
-    const existe = dataCategorias.find(c => c.nombre.toLowerCase() === nombreCat.toLowerCase() && c.tipo === tipo);
-    
-    if (existe) {
-        categoriaId = existe.id;
-    } else {
-        // Crear categoría al vuelo
-        const resNueva = await fetchAuth(`${API_URL}/categorias/`, {
-            method: 'POST',
-            body: JSON.stringify({ nombre: nombreCat, tipo: tipo })
-        });
-        if(resNueva.ok) {
-            const nuevaCat = await resNueva.json();
-            dataCategorias.push(nuevaCat);
-            categoriaId = nuevaCat.id;
-        } else {
-            alert('Error al crear nueva categoría automáticamente.');
-            btn.disabled = false; btn.innerHTML = original;
-            return;
-        }
-    }
-
-    const bodyTrans = {
-        monto: getMonto('transMonto'),
-        fecha: document.getElementById('transFecha').value,
-        categoria_id: categoriaId,
-        cuenta_id: parseInt(document.getElementById('transCuenta').value),
-        tipo: tipo
+    const body = {
+        nombre: document.getElementById('regNombre').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value
     };
 
     try {
         const res = await fetch(`${API_URL}/usuarios/registro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(bodyTrans)
+            body: JSON.stringify(body)
         });
 
         if (res.ok) {
             alert('¡Cuenta creada! Ahora inicia sesión.');
-            toggleAuth('login');
+            document.getElementById('vistaAuth').classList.remove('hidden');
+            document.getElementById('appPrincipal').classList.add('hidden');
+            e.target.reset();
         } else {
-            const error = await res.json();
-            alert(`Error: ${error.detail}`);
+            const data = await res.json();
+            alert('Error: ' + (data.detail || 'No se pudo crear la cuenta'));
         }
-    } catch (err) { alert('Error conectando al servidor'); }
-    finally { btn.disabled = false; btn.innerHTML = originalText; }
-}
-
-function cerrarSesion() {
-    localStorage.removeItem('token');
-    verificarSesion();
-}
-
-// Wrapper para Fetch Autorizado
-async function fetchAuth(url, options = {}) {
-    const token = localStorage.getItem('token');
-    const headers = { ...options.headers };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
-
-    try {
-        const res = await fetch(url, { ...options, headers });
-        if (res.status === 401) {
-            const data = await res.json().catch(() => ({}));
-            alert(`Fallo de Seguridad 401 en: ${url}
-Razón: ${data.detail || 'Sesión expirada'}`);
-            cerrarSesion();
-            throw new Error('Sesión expirada');
-        }
-        return res;
     } catch(err) {
-        console.error("FetchAuth Error:", err);
-        throw err;
-    }
-}
-
-// ================= APLICACIÓN PRINCIPAL =================
-async function verificarSesion() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        document.getElementById('vistaAuth').classList.remove('hidden');
-        document.getElementById('appPrincipal').classList.add('hidden');
-    } else {
-        document.getElementById('vistaAuth').classList.add('hidden');
-        document.getElementById('appPrincipal').classList.remove('hidden');
-        document.getElementById('saludoUsuario').innerText = 'Hola, bienvenido de nuevo';
-        
-        document.getElementById('fecha_transaccion').valueAsDate = new Date();
-        document.getElementById('fecha_compra').valueAsDate = new Date();
-        
-        await inicializarBaseDeDatos();
-        await cargarCategorias();
-        await actualizarTodo();
-    }
-}
-
-// --- Pestañas ---
-const tabs = ['inicio', 'movimientos', 'creditos', 'suscripciones', 'cuentas'];
-function switchTab(tabSeleccionado) {
-    tabs.forEach(t => {
-        document.getElementById(`vista${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('hidden', t !== tabSeleccionado);
-        const btn = document.getElementById(`btnTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        console.error(err);
+    } finally {
         if(btn) {
-            btn.className = t === tabSeleccionado 
-                ? 'bg-blue-900 px-4 py-2 rounded shadow font-semibold hover:bg-blue-700 transition whitespace-nowrap' 
-                : 'bg-blue-700 px-4 py-2 rounded font-semibold hover:bg-blue-600 transition whitespace-nowrap';
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
-    });
-}
-
-// --- Setup ---
-async function inicializarBaseDeDatos() {
-    try {
-        const resE = await fetchAuth(`${API_URL}/entidades/`);
-        const entidades = await resE.json();
-        if (entidades.length === 0) {
-            const nueva = await fetchAuth(`${API_URL}/entidades/`, { method: 'POST', body: JSON.stringify({ nombre: "Mi Tarjeta Principal", dia_corte: 15, dia_limite_pago: 5 }) });
-            const data = await nueva.json();
-            document.getElementById('entidad_id').value = data.id;
-        } else {
-            document.getElementById('entidad_id').value = entidades[0].id;
-        }
-
-        const resC = await fetchAuth(`${API_URL}/categorias/`);
-        const cats = await resC.json();
-        if (cats.length === 0) {
-            await fetchAuth(`${API_URL}/categorias/`, { method: 'POST', body: JSON.stringify({ nombre: "Salario", tipo: "Ingreso" }) });
-            await fetchAuth(`${API_URL}/categorias/`, { method: 'POST', body: JSON.stringify({ nombre: "Comida", tipo: "Gasto" }) });
-            await fetchAuth(`${API_URL}/categorias/`, { method: 'POST', body: JSON.stringify({ nombre: "Transporte", tipo: "Gasto" }) });
-        }
-    } catch (e) { console.error(e); }
+    }
 }
 
 async function cargarCategorias() {
@@ -494,7 +391,7 @@ async function guardarTransaccion(e) {
     }
 
     const bodyTrans = {
-        monto: getMonto('transMonto'),
+        monto: getMonto('monto_transaccion'),
         fecha: document.getElementById('transFecha').value,
         categoria_id: categoriaId,
         cuenta_id: parseInt(document.getElementById('transCuenta').value),
