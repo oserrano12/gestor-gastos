@@ -169,3 +169,17 @@ def obtener_cuotas_pendientes(db: Session = Depends(get_db), current_user: model
              .filter(models.TablaAmortizacion.estado == "Pendiente")\
              .order_by(models.TablaAmortizacion.fecha_vencimiento.asc())\
              .all()
+
+# --- Cuentas ---
+@router.get('/cuentas/', response_model=List[schemas.CuentaResponse])
+def obtener_cuentas(db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    return db.query(models.Cuenta).filter(models.Cuenta.usuario_id == current_user.id).all()
+
+@router.post('/cuentas/', response_model=schemas.CuentaResponse)
+def crear_cuenta(cuenta: schemas.CuentaCreate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    nueva_cuenta = models.Cuenta(usuario_id=current_user.id, nombre=cuenta.nombre, color=cuenta.color)
+    db.add(nueva_cuenta)
+    db.commit()
+    db.refresh(nueva_cuenta)
+    return nueva_cuenta
+
