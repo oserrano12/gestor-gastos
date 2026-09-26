@@ -116,8 +116,16 @@ async function loginUsuario(e) {
         } else {
             alert('Correo o contraseña incorrectos');
         }
-    } catch (err) { alert('Error conectando al servidor'); }
-    finally { btn.disabled = false; btn.innerHTML = originalText; }
+    } catch (err) {
+        alert('Error conectando: ' + err.message + ' | ' + err.stack);
+        console.error("Login Error:", err);
+    }
+    finally {
+        if(btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
 }
 
 async function registrarUsuario(e) {
