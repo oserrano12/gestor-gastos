@@ -188,12 +188,20 @@ async function fetchAuth(url, options = {}) {
     if (token) headers['Authorization'] = `Bearer ${token}`;
     if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
 
-    const res = await fetch(url, { ...options, headers });
-    if (res.status === 401) {
-        cerrarSesion();
-        throw new Error('Sesión expirada');
+    try {
+        const res = await fetch(url, { ...options, headers });
+        if (res.status === 401) {
+            const data = await res.json().catch(() => ({}));
+            alert(`Fallo de Seguridad 401 en: ${url}
+Razón: ${data.detail || 'Sesión expirada'}`);
+            cerrarSesion();
+            throw new Error('Sesión expirada');
+        }
+        return res;
+    } catch(err) {
+        console.error("FetchAuth Error:", err);
+        throw err;
     }
-    return res;
 }
 
 // ================= APLICACIÓN PRINCIPAL =================
