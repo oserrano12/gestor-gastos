@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestor-cache-v8';
+﻿const CACHE_NAME = 'gestor-cache-v9';
 const urlsToCache = [
   '/',
   '/index.html',

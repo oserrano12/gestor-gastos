@@ -1,4 +1,4 @@
-const API_URL = 'https://gestor-gastos-ro0g.onrender.com/api';
+ï»¿const API_URL = 'https://gestor-gastos-ro0g.onrender.com/api';
 const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 
 let dataCategorias = [];
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('input[data-type="currency"]').forEach(input => { input.addEventListener('input', aplicarMascaraMoneda); }); verificarSesion();
 });
 
-// ================= AUTENTICACI+ôN =================
+// ================= AUTENTICACI+Ã´N =================
 function toggleAuth(modo) {
     document.getElementById('formLogin').classList.toggle('hidden', modo !== 'login');
     document.getElementById('formRegistro').classList.toggle('hidden', modo !== 'registro');
@@ -46,16 +46,16 @@ async function buscarCorreoRecuperacion() {
             document.getElementById('divNuevaClave').classList.remove('hidden');
             document.getElementById('btnBuscarCorreo').classList.add('hidden');
             document.getElementById('btnGuardarClave').classList.remove('hidden');
-            alert('Cuenta encontrada. Ingresa tu nueva contrase+¦a abajo.');
+            alert('Cuenta encontrada. Ingresa tu nueva contrase+Â¦a abajo.');
         } else {
             alert('Ese correo no existe en el sistema.');
         }
-    } catch(e) { alert('Error de conexi+¦n'); }
+    } catch(e) { alert('Error de conexi+Â¦n'); }
 }
 
 async function guardarNuevaClave() {
     const new_password = document.getElementById('recupPassword').value;
-    if(new_password.length < 4) return alert('La contrase+¦a es muy corta');
+    if(new_password.length < 4) return alert('La contrase+Â¦a es muy corta');
     
     try {
         const res = await fetch(`${API_URL}/usuarios/resetear`, {
@@ -64,7 +64,7 @@ async function guardarNuevaClave() {
             body: JSON.stringify({token: resetTokenTemporal, new_password})
         });
         if(res.ok) {
-            alert('-íContrase+¦a cambiada exitosamente! Ya puedes iniciar sesi+¦n.');
+            alert('-Ã­Contrase+Â¦a cambiada exitosamente! Ya puedes iniciar sesi+Â¦n.');
             document.getElementById('recupEmail').disabled = false;
             document.getElementById('recupEmail').value = '';
             document.getElementById('recupPassword').value = '';
@@ -73,9 +73,9 @@ async function guardarNuevaClave() {
             document.getElementById('btnGuardarClave').classList.add('hidden');
             toggleAuth('login');
         } else {
-            alert('Error al cambiar la contrase+¦a. Intenta de nuevo.');
+            alert('Error al cambiar la contrase+Â¦a. Intenta de nuevo.');
         }
-    } catch(e) { alert('Error de conexi+¦n'); }
+    } catch(e) { alert('Error de conexi+Â¦n'); }
 }
 
 function togglePassword(inputId, iconId) {
@@ -114,7 +114,7 @@ async function loginUsuario(e) {
             localStorage.setItem('token', data.access_token);
             document.querySelectorAll('input[data-type="currency"]').forEach(input => { input.addEventListener('input', aplicarMascaraMoneda); }); verificarSesion();
         } else {
-            alert('Correo o contrase+¦a incorrectos');
+            alert('Correo o contrase+Â¦a incorrectos');
         }
     } catch (err) { alert('Error conectando al servidor'); }
     finally { btn.disabled = false; btn.innerHTML = originalText; }
@@ -140,7 +140,7 @@ async function registrarUsuario(e) {
         });
 
         if (res.ok) {
-            alert('¡Cuenta creada! Ahora inicia sesión.');
+            alert('Â¡Cuenta creada! Ahora inicia sesiÃ³n.');
             document.getElementById('vistaAuth').classList.remove('hidden');
             document.getElementById('appPrincipal').classList.add('hidden');
             e.target.reset();
@@ -175,9 +175,9 @@ async function fetchAuth(url, options = {}) {
         if (res.status === 401) {
             const data = await res.json().catch(() => ({}));
             alert(`Fallo de Seguridad 401 en: ${url}
-Raz+¦n: ${data.detail || 'Sesi+¦n expirada'}`);
+Raz+Â¦n: ${data.detail || 'Sesi+Â¦n expirada'}`);
             cerrarSesion();
-            throw new Error('Sesi+¦n expirada');
+            throw new Error('Sesi+Â¦n expirada');
         }
         return res;
     } catch(err) {
@@ -186,7 +186,7 @@ Raz+¦n: ${data.detail || 'Sesi+¦n expirada'}`);
     }
 }
 
-// ================= APLICACI+ôN PRINCIPAL =================
+// ================= APLICACI+Ã´N PRINCIPAL =================
 async function verificarSesion() {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -206,7 +206,7 @@ async function verificarSesion() {
     }
 }
 
-// --- Pesta+¦as ---
+// --- Pesta+Â¦as ---
 const tabs = ['inicio', 'movimientos', 'creditos', 'suscripciones', 'cuentas'];
 function switchTab(tabSeleccionado) {
     tabs.forEach(t => {
@@ -252,7 +252,7 @@ async function cargarCategorias() {
     } catch (e) { console.error(e); }
 }
 
-// --- L+¦gica Principal ---
+// --- L+Â¦gica Principal ---
 async function actualizarTodo() {
     totalIngresosMonto = 0;
     totalGastosMonto = 0;
@@ -268,7 +268,7 @@ async function actualizarTodo() {
     actualizarGrafico(totalIngresosMonto, totalGastosMonto);
 }
 
-// --- Gr+ífico Chart.js ---
+// --- Gr+Ã­fico Chart.js ---
 let miGrafico = null;
 function actualizarGrafico(ingresos, gastos) {
     const ctx = document.getElementById('graficoFinanzas').getContext('2d');
@@ -302,7 +302,7 @@ function actualizarGrafico(ingresos, gastos) {
 // --- Exportar a Excel ---
 function exportarExcel(idTabla, nombreArchivo) {
     const tabla = document.getElementById(idTabla);
-    if (!tabla || tabla.innerText.includes('No hay') || tabla.innerText.includes('A+¦n no')) {
+    if (!tabla || tabla.innerText.includes('No hay') || tabla.innerText.includes('A+Â¦n no')) {
         alert("No hay datos para exportar");
         return;
     }
@@ -324,7 +324,7 @@ async function cargarTransacciones() {
 
         if (txs.length === 0) {
             tbodyFull.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">No hay movimientos.</td></tr>`;
-            tbodyDash.innerHTML = `<tr><td class="py-4 text-slate-500 text-center">A+¦n no hay movimientos.</td></tr>`;
+            tbodyDash.innerHTML = `<tr><td class="py-4 text-slate-500 text-center">A+Â¦n no hay movimientos.</td></tr>`;
             return;
         }
 
@@ -378,7 +378,7 @@ async function cargarCuotasYSuscripciones() {
         } else {
             cuotas.forEach(c => {
                 totalGastosMonto += parseFloat(c.cuota_total);
-                proximosPagos.push({ tipo: 'Cuota Cr+®dito', nombre: `Cuota ${c.numero_cuota}`, monto: parseFloat(c.cuota_total), vencimiento: c.fecha_vencimiento });
+                proximosPagos.push({ tipo: 'Cuota Cr+Â®dito', nombre: `Cuota ${c.numero_cuota}`, monto: parseFloat(c.cuota_total), vencimiento: c.fecha_vencimiento });
 
                 const vencida = new Date(c.fecha_vencimiento) < new Date();
                 const badge = vencida ? "bg-red-100 text-red-700" : "bg-blue-50 text-blue-700";
@@ -407,12 +407,12 @@ async function cargarCuotasYSuscripciones() {
                 if (fechaCobro < hoy) fechaCobro.setMonth(fechaCobro.getMonth() + 1);
                 const fStr = fechaCobro.toISOString().split('T')[0];
 
-                proximosPagos.push({ tipo: 'Suscripci+¦n', nombre: s.nombre, monto: parseFloat(s.monto), vencimiento: fStr });
+                proximosPagos.push({ tipo: 'Suscripci+Â¦n', nombre: s.nombre, monto: parseFloat(s.monto), vencimiento: fStr });
 
                 tbodySusc.innerHTML += `
                     <tr class="hover:bg-slate-50">
                         <td class="px-4 py-3 font-medium text-slate-700">${s.nombre}</td>
-                        <td class="px-4 py-3 text-center text-slate-600">D+¡a ${s.dia_cobro}</td>
+                        <td class="px-4 py-3 text-center text-slate-600">D+Â¡a ${s.dia_cobro}</td>
                         <td class="px-4 py-3 text-right font-bold text-red-600">-${money.format(s.monto)}</td>
                         <td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">Activa</span></td>
                         <td class="px-4 py-3 text-center">
@@ -429,7 +429,7 @@ async function cargarCuotasYSuscripciones() {
         } else {
             proximosPagos.sort((a,b) => new Date(a.vencimiento) - new Date(b.vencimiento));
             proximosPagos.slice(0, 6).forEach(p => {
-                const badge = p.tipo === 'Suscripci+¦n' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700';
+                const badge = p.tipo === 'Suscripci+Â¦n' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700';
                 tbodyDashPagos.innerHTML += `
                     <tr class="border-b border-slate-50 last:border-0">
                         <td class="py-2 text-slate-700 font-medium">${p.nombre}</td>
@@ -469,7 +469,7 @@ async function guardarTransaccion(e) {
             dataCategorias.push(nuevaCat);
             categoriaId = nuevaCat.id;
         } else {
-            alert('Error al crear nueva categor+¡a');
+            alert('Error al crear nueva categor+Â¡a');
             if (btn) { btn.disabled = false; btn.innerHTML = 'Guardar'; }
             return;
         }
@@ -479,7 +479,7 @@ async function guardarTransaccion(e) {
         monto: getMonto('monto_transaccion'),
         fecha: document.getElementById('transFecha').value,
         categoria_id: categoriaId,
-        cuenta_id: parseInt(document.getElementById('transCuenta').value),
+        cuenta_id: document.getElementById('transCuenta') ? parseInt(document.getElementById('transCuenta').value) : null,
         descripcion: document.getElementById('transDescripcion').value
     };
     
@@ -536,7 +536,7 @@ async function guardarSuscripcion(e) {
             dataCategorias.push(nuevaCat);
             catId = nuevaCat.id;
         } else {
-            alert('Error al crear categor+¡a de suscripci+¦n');
+            alert('Error al crear categor+Â¡a de suscripci+Â¦n');
             btn.disabled = false; btn.innerHTML = original;
             return;
         }
@@ -609,7 +609,7 @@ function renderizarCuentas() {
 
 // ================= ELIMINAR REGISTROS =================
 async function eliminarTransaccion(id) {
-    if(!confirm('-+Est+ís seguro de eliminar este movimiento? (Esto actualizar+í el saldo de tu cuenta)')) return;
+    if(!confirm('-+Est+Ã­s seguro de eliminar este movimiento? (Esto actualizar+Ã­ el saldo de tu cuenta)')) return;
     try {
         const res = await fetchAuth(`${API_URL}/transacciones/${id}`, { method: 'DELETE' });
         if(res.ok) actualizarTodo();
@@ -618,7 +618,7 @@ async function eliminarTransaccion(id) {
 }
 
 async function eliminarSuscripcion(id) {
-    if(!confirm('-+Est+ís seguro de eliminar esta suscripci+¦n?')) return;
+    if(!confirm('-+Est+Ã­s seguro de eliminar esta suscripci+Â¦n?')) return;
     try {
         const res = await fetchAuth(`${API_URL}/suscripciones/${id}`, { method: 'DELETE' });
         if(res.ok) actualizarTodo();
@@ -630,14 +630,14 @@ async function eliminarSuscripcion(id) {
 // ================= FORMATO MONEDA EN INPUTS =================
 function aplicarMascaraMoneda(event) {
     let input = event.target;
-    // Eliminar todo lo que no sea n+¦mero
+    // Eliminar todo lo que no sea n+Â¦mero
     let valor = input.value.replace(/\D/g, "");
     if (valor === "") {
         input.dataset.raw_value = "";
         input.value = "";
         return;
     }
-    // Guardar el valor matem+ítico real en un atributo data-raw_value
+    // Guardar el valor matem+Ã­tico real en un atributo data-raw_value
     input.dataset.raw_value = valor;
     
     // Formatear con puntos de miles
@@ -648,7 +648,7 @@ document.querySelectorAll('input[data-type="currency"]').forEach(input => {
     input.addEventListener('input', aplicarMascaraMoneda);
 });
 
-// Funci+¦n auxiliar para leer el valor num+®rico real de los inputs
+// Funci+Â¦n auxiliar para leer el valor num+Â®rico real de los inputs
 function getMonto(id) {
     const input = document.getElementById(id);
     if (input.dataset.raw_value) {
