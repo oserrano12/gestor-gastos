@@ -217,7 +217,7 @@ async function verificarSesion() {
 }
 
 // --- Pestañas ---
-const tabs = ['inicio', 'movimientos', 'creditos', 'suscripciones'];
+const tabs = ['inicio', 'movimientos', 'creditos', 'suscripciones', 'cuentas'];
 function switchTab(tabSeleccionado) {
     tabs.forEach(t => {
         document.getElementById(`vista${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('hidden', t !== tabSeleccionado);
@@ -460,7 +460,7 @@ async function guardarTransaccion(e) {
         fecha: document.getElementById('fecha_transaccion').value,
         descripcion: document.getElementById('desc_transaccion').value
     };
-    await fetchAuth(`${API_URL}/transacciones/`, { method: 'POST', body: JSON.stringify(body) });
+    await fetchAuth(`${API_URL}/transacciones/`, { method: 'POST', body: JSON.stringify(bodyTrans) });
     e.target.reset();
     document.getElementById('fecha_transaccion').valueAsDate = new Date();
     actualizarTodo();
@@ -478,7 +478,7 @@ async function guardarCredito(e) {
         numero_cuotas: parseInt(document.getElementById('numero_cuotas').value),
         fecha_compra: document.getElementById('fecha_compra').value
     };
-    await fetchAuth(`${API_URL}/creditos/`, { method: 'POST', body: JSON.stringify(body) });
+    await fetchAuth(`${API_URL}/creditos/`, { method: 'POST', body: JSON.stringify(bodyTrans) });
     e.target.reset();
     document.getElementById('fecha_compra').valueAsDate = new Date();
     actualizarTodo();
@@ -492,7 +492,7 @@ async function guardarSuscripcion(e) {
         categoria_id: parseInt(document.getElementById('categoria_suscripcion_id').value),
         dia_cobro: parseInt(document.getElementById('dia_cobro').value)
     };
-    await fetchAuth(`${API_URL}/suscripciones/`, { method: 'POST', body: JSON.stringify(body) });
+    await fetchAuth(`${API_URL}/suscripciones/`, { method: 'POST', body: JSON.stringify(bodyTrans) });
     e.target.reset();
     actualizarTodo();
 }
@@ -516,7 +516,7 @@ async function crearCuenta(e) {
     try {
         const res = await fetchAuth(`${API_URL}/cuentas/`, {
             method: 'POST',
-            body: JSON.stringify(body)
+            body: JSON.stringify(bodyTrans)
         });
         if(res.ok) {
             e.target.reset();
