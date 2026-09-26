@@ -126,17 +126,43 @@ async function registrarUsuario(e) {
     const originalText = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando...';
 
-    const body = {
-        nombre: document.getElementById('regNombre').value,
-        email: document.getElementById('regEmail').value,
-        password: document.getElementById('regPassword').value
+    // ================= CATEGORIA DINÁMICA =================
+    const nombreCat = document.getElementById('transCategoriaInput').value.trim();
+    let categoriaId = null;
+    const existe = dataCategorias.find(c => c.nombre.toLowerCase() === nombreCat.toLowerCase() && c.tipo === tipo);
+    
+    if (existe) {
+        categoriaId = existe.id;
+    } else {
+        // Crear categoría al vuelo
+        const resNueva = await fetchAuth(`${API_URL}/categorias/`, {
+            method: 'POST',
+            body: JSON.stringify({ nombre: nombreCat, tipo: tipo })
+        });
+        if(resNueva.ok) {
+            const nuevaCat = await resNueva.json();
+            dataCategorias.push(nuevaCat);
+            categoriaId = nuevaCat.id;
+        } else {
+            alert('Error al crear nueva categoría automáticamente.');
+            btn.disabled = false; btn.innerHTML = original;
+            return;
+        }
+    }
+
+    const bodyTrans = {
+        monto: parseFloat(document.getElementById('transMonto').value),
+        fecha: document.getElementById('transFecha').value,
+        categoria_id: categoriaId,
+        cuenta_id: parseInt(document.getElementById('transCuenta').value),
+        tipo: tipo
     };
 
     try {
         const res = await fetch(`${API_URL}/usuarios/registro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
+            body: JSON.stringify(bodyTrans)
         });
 
         if (res.ok) {

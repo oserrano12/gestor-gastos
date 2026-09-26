@@ -27,6 +27,23 @@ def registrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_
     # NUEVO: Crear cuenta Efectivo por defecto
     cuenta = models.Cuenta(usuario_id=nuevo_usuario.id, nombre="Efectivo", color="#10b981")
     db.add(cuenta)
+    
+    # NUEVO: Categorias por defecto
+    categorias_comunes = [
+        {"nombre": "Salario", "tipo": "Ingreso"},
+        {"nombre": "Negocios", "tipo": "Ingreso"},
+        {"nombre": "Regalos", "tipo": "Ingreso"},
+        {"nombre": "Alimentación", "tipo": "Gasto"},
+        {"nombre": "Transporte", "tipo": "Gasto"},
+        {"nombre": "Vivienda", "tipo": "Gasto"},
+        {"nombre": "Servicios", "tipo": "Gasto"},
+        {"nombre": "Entretenimiento", "tipo": "Gasto"},
+        {"nombre": "Salud", "tipo": "Gasto"},
+        {"nombre": "Educación", "tipo": "Gasto"}
+    ]
+    for cat in categorias_comunes:
+        db.add(models.Categoria(usuario_id=nuevo_usuario.id, nombre=cat["nombre"], tipo=cat["tipo"]))
+        
     db.commit()
     
     return nuevo_usuario
