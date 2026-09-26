@@ -570,3 +570,23 @@ function renderizarCuentas() {
         </div>
     `).join('');
 }
+
+
+// ================= ELIMINAR REGISTROS =================
+async function eliminarTransaccion(id) {
+    if(!confirm('¿Estás seguro de eliminar este movimiento? (Esto actualizará el saldo de tu cuenta)')) return;
+    try {
+        const res = await fetchAuth(`${API_URL}/transacciones/${id}`, { method: 'DELETE' });
+        if(res.ok) actualizarTodo();
+        else alert('Error al eliminar');
+    } catch(e) { console.error(e); }
+}
+
+async function eliminarSuscripcion(id) {
+    if(!confirm('¿Estás seguro de eliminar esta suscripción?')) return;
+    try {
+        const res = await fetchAuth(`${API_URL}/suscripciones/${id}`, { method: 'DELETE' });
+        if(res.ok) actualizarTodo();
+        else alert('Error al eliminar');
+    } catch(e) { console.error(e); }
+}

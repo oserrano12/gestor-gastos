@@ -211,3 +211,24 @@ def crear_cuenta(cuenta: schemas.CuentaCreate, db: Session = Depends(get_db), cu
     db.refresh(nueva_cuenta)
     return nueva_cuenta
 
+
+# --- ELIMINAR REGISTROS ---
+@router.delete('/transacciones/{id}')
+def eliminar_transaccion(id: int, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    t = db.query(models.TransaccionCorriente).filter(models.TransaccionCorriente.id == id, models.TransaccionCorriente.usuario_id == current_user.id).first()
+    if not t: raise HTTPException(status_code=404, detail='No encontrada')
+    # Revertir saldo de cuenta si existe
+    if t.cuenta_id:
+        cuenta = db.query(models.Cuenta).filter(models.Cuenta.id == t.cuenta_id).first()
+        if cuenta:
+            categoria = db.query(models.Categoria).filter(models.Categoria.id == t.categoria_id).first()
+            if getattr(categoria, 'tipo', '') == 'Ingreso': cuenta.saldo -= float(t.monto)
+            else: cuenta.saldo += float(t.monto)
+    db.delete(t); db.commit(); return {'msg': 'ok'}
+
+@router.delete('/suscripciones/{id}')
+def eliminar_suscripcion(id: int, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    s = db.query(models.Suscripcion).filter(models.Suscripcion.id == id, models.Suscripcion.usuario_id == current_user.id).first()
+    if not s: raise HTTPException(status_code=404, detail='No encontrada')
+    db.delete(s); db.commit(); return {'msg': 'ok'}
+
