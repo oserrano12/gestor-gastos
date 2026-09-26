@@ -496,22 +496,34 @@ async function guardarCredito(e) {
     const original = btn ? btn.innerHTML : 'Generar';
     if(btn) { btn.disabled = true; btn.innerHTML = 'Generando...'; }
 
-    let tasa = parseFloat(document.getElementById('tasa_interes').value.replace(',', '.')) / 100.0;
-    const bodyCredito = {
-        entidad_id: parseInt(document.getElementById('entidad_id').value),
-        concepto: document.getElementById('concepto').value,
-        monto_total: getMonto('monto_total'),
-        tasa_interes: tasa,
-        tipo_tasa: document.getElementById('tipo_tasa').value,
-        numero_cuotas: parseInt(document.getElementById('numero_cuotas').value),
-        fecha_compra: document.getElementById('fecha_compra').value
-    };
-    
-    await fetchAuth(`${API_URL}/creditos/`, { method: 'POST', body: JSON.stringify(bodyCredito) });
-    e.target.reset();
-    document.getElementById('fecha_compra').valueAsDate = new Date();
-    if(btn) { btn.disabled = false; btn.innerHTML = original; }
-    actualizarTodo();
+    try {
+        let tasaStr = document.getElementById('tasa_interes').value.replace(',', '.');
+        let tasa = parseFloat(tasaStr) / 100.0;
+        const bodyCredito = {
+            entidad_id: parseInt(document.getElementById('entidad_id').value),
+            concepto: document.getElementById('concepto').value,
+            monto_total: getMonto('monto_total'),
+            tasa_interes: tasa,
+            tipo_tasa: document.getElementById('tipo_tasa').value,
+            numero_cuotas: parseInt(document.getElementById('numero_cuotas').value),
+            fecha_compra: document.getElementById('fecha_compra').value
+        };
+        
+        const resCred = await fetchAuth(`${API_URL}/creditos/`, { method: 'POST', body: JSON.stringify(bodyCredito) });
+        if(!resCred.ok) {
+            const errDat = await resCred.json();
+            alert('Error backend: ' + errDat.detail);
+            if(btn){btn.disabled=false; btn.innerHTML=original;}
+            return;
+        }
+        e.target.reset();
+        document.getElementById('fecha_compra').valueAsDate = new Date();
+        if(btn) { btn.disabled = false; btn.innerHTML = original; }
+        actualizarTodo();
+    } catch(error) {
+        alert("Error de JS al generar crédito: " + error.message);
+        if(btn) { btn.disabled = false; btn.innerHTML = original; }
+    }
 }
 
 async function guardarSuscripcion(e) {
