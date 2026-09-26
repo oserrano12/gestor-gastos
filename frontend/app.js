@@ -22,6 +22,58 @@ document.addEventListener('DOMContentLoaded', () => {
 function toggleAuth(modo) {
     document.getElementById('formLogin').classList.toggle('hidden', modo !== 'login');
     document.getElementById('formRegistro').classList.toggle('hidden', modo !== 'registro');
+    document.getElementById('formRecuperar').classList.toggle('hidden', modo !== 'recuperar');
+}
+
+let resetTokenTemporal = null;
+
+async function buscarCorreoRecuperacion() {
+    const email = document.getElementById('recupEmail').value;
+    if(!email) return alert('Ingresa un correo');
+    
+    try {
+        const res = await fetch(`${API_URL}/usuarios/recuperar`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email})
+        });
+        if(res.ok) {
+            const data = await res.json();
+            resetTokenTemporal = data.reset_token;
+            document.getElementById('recupEmail').disabled = true;
+            document.getElementById('divNuevaClave').classList.remove('hidden');
+            document.getElementById('btnBuscarCorreo').classList.add('hidden');
+            document.getElementById('btnGuardarClave').classList.remove('hidden');
+            alert('Cuenta encontrada. Ingresa tu nueva contraseña abajo.');
+        } else {
+            alert('Ese correo no existe en el sistema.');
+        }
+    } catch(e) { alert('Error de conexión'); }
+}
+
+async function guardarNuevaClave() {
+    const new_password = document.getElementById('recupPassword').value;
+    if(new_password.length < 4) return alert('La contraseña es muy corta');
+    
+    try {
+        const res = await fetch(`${API_URL}/usuarios/resetear`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: resetTokenTemporal, new_password})
+        });
+        if(res.ok) {
+            alert('¡Contraseña cambiada exitosamente! Ya puedes iniciar sesión.');
+            document.getElementById('recupEmail').disabled = false;
+            document.getElementById('recupEmail').value = '';
+            document.getElementById('recupPassword').value = '';
+            document.getElementById('divNuevaClave').classList.add('hidden');
+            document.getElementById('btnBuscarCorreo').classList.remove('hidden');
+            document.getElementById('btnGuardarClave').classList.add('hidden');
+            toggleAuth('login');
+        } else {
+            alert('Error al cambiar la contraseña. Intenta de nuevo.');
+        }
+    } catch(e) { alert('Error de conexión'); }
 }
 
 function togglePassword(inputId, iconId) {

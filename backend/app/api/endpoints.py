@@ -34,6 +34,34 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     token = security.create_access_token(data={"sub": user.email})
     return {"access_token": token, "token_type": "bearer"}
 
+@router.post("/usuarios/recuperar")
+def recuperar_password(data: schemas.RecuperarPassword, db: Session = Depends(get_db)):
+    user = db.query(models.Usuario).filter(models.Usuario.email == data.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Correo no encontrado")
+    
+    # En un sistema real, enviamos esto por correo. Aquí lo devolvemos directo al frontend por facilidad.
+    reset_token = security.create_access_token(data={"sub": user.email, "type": "reset"}, expires_delta=security.timedelta(minutes=15))
+    return {"mensaje": "Token generado", "reset_token": reset_token}
+
+@router.post("/usuarios/resetear")
+def resetear_password(data: schemas.ResetearPassword, db: Session = Depends(get_db)):
+    try:
+        payload = security.jwt.decode(data.token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
+        if payload.get("type") != "reset":
+            raise HTTPException(status_code=400, detail="Token inválido")
+        email = payload.get("sub")
+    except security.jwt.PyJWTError:
+        raise HTTPException(status_code=400, detail="Token expirado o inválido")
+    
+    user = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    user.hashed_password = security.get_password_hash(data.new_password)
+    db.commit()
+    return {"mensaje": "Contraseña actualizada exitosamente"}
+
 # --- Entidades Crediticias ---
 @router.post("/entidades/", response_model=schemas.EntidadResponse)
 def crear_entidad(entidad: schemas.EntidadCreate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):

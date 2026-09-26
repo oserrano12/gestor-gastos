@@ -22,6 +22,13 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class RecuperarPassword(BaseModel):
+    email: str
+
+class ResetearPassword(BaseModel):
+    token: str
+    new_password: str
+
 # --- Categorías ---
 class CategoriaBase(BaseModel):
     nombre: str
