@@ -353,6 +353,9 @@ async function cargarTransacciones() {
                     <td class="px-4 py-3 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded bg-slate-100 border text-slate-600">${t.categoria.nombre}</span></td>
                     <td class="px-4 py-3 text-slate-700">${t.descripcion || '-'}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-right font-bold ${color}">${signo}${money.format(t.monto)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                        <button onclick="eliminarTransaccion(${t.id})" class="text-red-500 hover:text-red-700 transition" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </td>
                 </tr>
             `;
 
@@ -422,6 +425,9 @@ async function cargarCuotasYSuscripciones() {
                         <td class="px-4 py-3 text-center text-slate-600">Día ${s.dia_cobro}</td>
                         <td class="px-4 py-3 text-right font-bold text-red-600">-${money.format(s.monto)}</td>
                         <td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">Activa</span></td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="eliminarSuscripcion(${s.id})" class="text-red-500 hover:text-red-700 transition" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </td>
                     </tr>
                 `;
             });
