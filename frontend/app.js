@@ -258,12 +258,7 @@ async function cargarCategorias() {
         const res = await fetchAuth(`${API_URL}/categorias/`);
         dataCategorias = await res.json();
         const select = document.getElementById('categoria_id');
-        const selectSusc = document.getElementById('categoria_suscripcion_id');
-        select.innerHTML = ''; selectSusc.innerHTML = '';
-        dataCategorias.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.nombre} (${c.tipo})</option>`;
-            if(c.tipo === 'Gasto') selectSusc.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
-        });
+        // select categories is handled by datalist now
     } catch (e) { console.error(e); }
 }
 
@@ -486,14 +481,42 @@ async function guardarCredito(e) {
 
 async function guardarSuscripcion(e) {
     e.preventDefault();
-    const body = {
+    const btn = e.target.querySelector('button[type="submit"]');
+    const original = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = 'Guardando...';
+
+    const nombreCat = document.getElementById('categoria_suscripcion_id').value.trim();
+    let catId = null;
+    const existe = dataCategorias.find(c => c.nombre.toLowerCase() === nombreCat.toLowerCase() && c.tipo === "Gasto");
+    
+    if (existe) {
+        catId = existe.id;
+    } else {
+        const resNueva = await fetchAuth(`${API_URL}/categorias/`, {
+            method: 'POST',
+            body: JSON.stringify({ nombre: nombreCat, tipo: "Gasto" })
+        });
+        if(resNueva.ok) {
+            const nuevaCat = await resNueva.json();
+            dataCategorias.push(nuevaCat);
+            catId = nuevaCat.id;
+        } else {
+            alert('Error al crear categoría de suscripción');
+            btn.disabled = false; btn.innerHTML = original;
+            return;
+        }
+    }
+
+    const bodyTrans = {
         nombre: document.getElementById('nombre_suscripcion').value,
         monto: parseFloat(document.getElementById('monto_suscripcion').value),
-        categoria_id: parseInt(document.getElementById('categoria_suscripcion_id').value),
+        categoria_id: catId,
         dia_cobro: parseInt(document.getElementById('dia_cobro').value)
     };
+    
     await fetchAuth(`${API_URL}/suscripciones/`, { method: 'POST', body: JSON.stringify(bodyTrans) });
     e.target.reset();
+    btn.disabled = false; btn.innerHTML = original;
     actualizarTodo();
 }
 
