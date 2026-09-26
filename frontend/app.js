@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('formCuenta').addEventListener('submit', crearCuenta);
     document.getElementById('formSuscripcion').addEventListener('submit', guardarSuscripcion);
 
-    verificarSesion();
+    document.querySelectorAll('input[data-type="currency"]').forEach(input => { input.addEventListener('input', aplicarMascaraMoneda); }); verificarSesion();
 });
 
 // ================= AUTENTICACI+ôN =================
@@ -112,7 +112,7 @@ async function loginUsuario(e) {
         if (res.ok) {
             const data = await res.json();
             localStorage.setItem('token', data.access_token);
-            verificarSesion();
+            document.querySelectorAll('input[data-type="currency"]').forEach(input => { input.addEventListener('input', aplicarMascaraMoneda); }); verificarSesion();
         } else {
             alert('Correo o contrase+¦a incorrectos');
         }
@@ -160,7 +160,7 @@ async function registrarUsuario(e) {
 
 function cerrarSesion() {
     localStorage.removeItem('token');
-    verificarSesion();
+    document.querySelectorAll('input[data-type="currency"]').forEach(input => { input.addEventListener('input', aplicarMascaraMoneda); }); verificarSesion();
 }
 
 // Wrapper para Fetch Autorizado
@@ -453,7 +453,7 @@ async function guardarTransaccion(e) {
 
     const nombreCat = document.getElementById('transCategoriaInput').value.trim();
     let categoriaId = null;
-    const tipoActivo = document.getElementById('btnTipoGasto').classList.contains('bg-red-600') ? 'Gasto' : 'Ingreso';
+    const tipoActivo = 'Gasto';
     
     const existe = dataCategorias.find(c => c.nombre.toLowerCase() === nombreCat.toLowerCase() && c.tipo === tipoActivo);
     
@@ -656,3 +656,20 @@ function getMonto(id) {
     }
     return parseFloat(input.value) || 0;
 }
+
+function aplicarMascaraMoneda(e) {
+    let valorStr = e.target.value.replace(/\D/g, '');
+    if (!valorStr) {
+        e.target.value = '';
+        e.target.dataset.raw_value = '';
+        return;
+    }
+    const valorNumerico = parseInt(valorStr, 10);
+    e.target.dataset.raw_value = valorNumerico;
+    e.target.value = new Intl.NumberFormat('es-CO').format(valorNumerico);
+}
+
+document.querySelectorAll('input[data-type="currency"]').forEach(input => {
+    input.addEventListener('input', aplicarMascaraMoneda);
+});
+
